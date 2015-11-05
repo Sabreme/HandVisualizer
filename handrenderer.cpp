@@ -4,6 +4,12 @@
 #define HAND_SPHERE_DETAIL 32
 #define HAND_CYLINDER_RADIUS 4.0f
 
+#include "vtkSphereSource.h"
+#include "vtkSmartPointer.h"
+#include "vtkActor.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+
 //namespace  {
 //Matrix44f GetBoneMatrix(const Leap::Bone& bone){
 
@@ -47,14 +53,7 @@ void HandRenderer::drawHands()
 
 void HandRenderer::drawJoint(const Leap::Vector &joint_position)
 {
-//    static const ColorA joint_color(CM_HSV, 0.6, 0.5f, 1.0f, 0.5f);
-
-//    glpushMatrix()
-//    glMaterialfv(GL_FRONT, GL_DIFFUSE, joint_color);
-//    gl::drawSphere(Vec3f::zero(), HAND_SPHERE_RADIUS, HAND_SPHERE_DETAIL);
-//    glPopMatrix();
-
-
+ /// DONE
 }
 
 void HandRenderer::drawBone(const Leap::Bone &bone)

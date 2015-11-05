@@ -1,6 +1,10 @@
 #include "handwindow.h"
 #include "ui_handwindow.h"
 
+#define HAND_SPHERE_RADIUS 7.0f
+#define HAND_SPHERE_DETAIL 32
+#define HAND_CYLINDER_RADIUS 4.0f
+
 #include "vtkSmartPointer.h"
 #include "vtkActor.h"
 #include "vtkProperty.h"
@@ -505,5 +509,48 @@ void HandWindow::on_buttonStop_clicked()
 //    {
 //        if(controller_->isConnected())
 //            controller_->~Controller();
-//    }
+    //    }
+}
+
+void HandWindow::drawHands()
+{
+
+}
+
+void HandWindow::drawJoint(const Vector &joint_position)
+{
+
+    ///    static const ColorA joint_color(CM_HSV, 0.6, 0.5f, 1.0f, 0.5f);       //  The Colour
+
+        vtkSmartPointer<vtkSphereSource> joint =
+                vtkSmartPointer<vtkSphereSource>::New();
+        joint->SetRadius(HAND_SPHERE_RADIUS);
+
+        vtkSmartPointer<vtkPolyDataMapper> mapper =
+                vtkSmartPointer<vtkPolyDataMapper>::New();
+        mapper->SetInputConnection(joint->GetOutputPort());
+
+            vtkActor * jointActor = vtkActor::New();
+            jointActor->SetMapper(mapper);
+
+             jointActor->GetProperty()->SetColor(2, 2, 2);
+             jointActor->GetProperty()->SetOpacity(0.5);
+
+             jointActor->SetPosition(joint_position.x, joint_position.y, joint_position.z);
+             global_Renderer->AddActor(jointActor);
+
+
+    ///    glPushMatrix();                                                                   //
+    ///     glTranslatef(joint_position.x, joint_position.y, joint_position.z);
+
+    //    glMaterialfv(GL_FRONT, GL_DIFFUSE, joint_color);
+    //    gl::drawSphere(Vec3f::zero(), HAND_SPHERE_RADIUS, HAND_SPHERE_DETAIL);
+    //    glPopMatrix();
+
+
+}
+
+void HandWindow::drawBone(const Bone &bone)
+{
+
 }

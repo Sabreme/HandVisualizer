@@ -34,6 +34,8 @@ private:
 
     Leap::Controller controller_;
     Leap::Vector translation_;
+
+
     float scale_;
 };
 
