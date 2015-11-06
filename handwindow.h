@@ -19,6 +19,8 @@
 #define HAND_TRANSLATION (Vec3f(0.0f, -400.0f, -100.0f))
 
 typedef std::vector<std::pair<Leap::Vector, float> > pinch_list;
+typedef std::vector<double[5],double[3]> fingerJoints2;
+typedef double fingerJoints[5][3];          /// Each finger has 5 joints and 3 pt Vector
 
 using namespace Leap;
 
@@ -63,6 +65,9 @@ private:
     vtkSphereSource             * global_Sphere;
     vtkActor                    * global_SphereActor;
 
+    Leap::Vector            joints[4];
+    vtkActor                    *global_Joints[5][5];           /// 5 FINGERS / 5 Joints
+
 
     Controller                  * controller_;
     QTimer*                timer;
@@ -73,6 +78,10 @@ private:
     /////////////////////////////////////////////////////
     void drawJoint(const Leap::Vector& joint_position);
     void drawBone(const Leap::Bone& bone);
+
+void jointPositions(fingerJoints& joints, int finger);
+    ///fingerJoints2 jointPositions(int finger);
+    double** jointPositions2(int finger);
 
     Leap::Vector translation_;
     float scale_;
