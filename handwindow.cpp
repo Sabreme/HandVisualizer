@@ -71,36 +71,69 @@ void HandWindow::on_buttonApply_clicked()
             vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(jointSource->GetOutputPort());
 
+//    /// Loop through each of the Fingers
+//    /// Then in Each Finger, loop through each of the Joints
+//    for (int f = 0; f < 5; f++)
+//    {
+//        fingerJoints  newJoints;                    /// Create a newJoints Object for each finger
+//        jointPositions(newJoints,f);                /// We get the defualt joints for the current finger
+
+//        for(int j = 0 ; j < 5; j++)                     /// We loop through each joint and create actor
+//        {
+//         global_Joints[f][j] = vtkActor::New();
+//         global_Joints[f][j]->SetMapper(mapper);
+
+//        global_Joints[f][j]->GetProperty()->SetColor(2, 2, 2);
+//        global_Joints[f][j]->GetProperty()->SetOpacity(0.5);
+
+//                                                        /// We get the position from the newJoints [B][x,y,z]
+//        scale_ = 0.01;
+
+//        global_Joints[f][j]->SetPosition(newJoints[j][0] * scale_,
+//                                                newJoints[j][1] * scale_,
+//                                                newJoints[j][2] * scale_ );
+//        ///global_Joints[f][j]->SetPosition((f*.1), (j*.1), (f+j)*.1);
+//         ///global_FingerTip[f][j]->SetPosition(tipPos[i]);
+//         global_Renderer->AddActor(global_Joints[f][j]);
+//        }
+//    }
+
+
+    //// THE BONES
+    vtkSmartPointer<vtkCylinderSource> boneSource =
+            vtkSmartPointer<vtkCylinderSource>::New();
+    boneSource->SetRadius(0.05);
+
+     mapper =
+            vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(boneSource->GetOutputPort());
+
     /// Loop through each of the Fingers
     /// Then in Each Finger, loop through each of the bones
     for (int f = 0; f < 5; f++)
     {
-        fingerJoints  newJoints;                    /// Create a newJoints Object for each finger
-        jointPositions(newJoints,f);                /// We get the defualt joints for the current finger
+        fingerBones  newBones;                    /// Create a newBones Object for each finger
+        bonePositions(newBones,f);                /// We get the defualt joints for the current finger
 
-        for(int j = 0 ; j < 5; j++)                     /// We loop through each joint and create actor
+        for(int j = 0 ; j < 4; j++)                     /// We loop through each Bone and create actor
         {
-         global_Joints[f][j] = vtkActor::New();
-         global_Joints[f][j]->SetMapper(mapper);
+         global_Bones[f][j] = vtkActor::New();
+         global_Bones[f][j]->SetMapper(mapper);
 
-        global_Joints[f][j]->GetProperty()->SetColor(2, 2, 2);
-        global_Joints[f][j]->GetProperty()->SetOpacity(0.5);
+        global_Bones[f][j]->GetProperty()->SetColor(2, 2, 2);
+        global_Bones[f][j]->GetProperty()->SetOpacity(0.5);
 
                                                         /// We get the position from the newJoints [B][x,y,z]
         scale_ = 0.01;
 
-        global_Joints[f][j]->SetPosition(newJoints[j][0] * scale_,
-                                                newJoints[j][1] * scale_,
-                                                newJoints[j][2] * scale_ );
+        global_Bones[f][j]->SetPosition(newBones[j][0] * scale_,
+                                                newBones[j][1] * scale_,
+                                                newBones[j][2] * scale_ );
         ///global_Joints[f][j]->SetPosition((f*.1), (j*.1), (f+j)*.1);
          ///global_FingerTip[f][j]->SetPosition(tipPos[i]);
-         global_Renderer->AddActor(global_Joints[f][j]);
+         global_Renderer->AddActor(global_Bones[f][j]);
         }
     }
-//    //leapScaleActor->BuildRepresentation(global_Renderer->GetViewport());
-//    leapScaleActor->BuildRepresentation(global_Renderer);
-//    global_LeapLegend = leapScaleActor;
-    //    //leapScaleActor->PrintSelf(std::cout);
 }
 
 void HandWindow::updateMe()
@@ -206,7 +239,7 @@ void HandWindow::updateMe()
             if(frame.hands().count() ==1)
             {
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
-                //////////////////////////    FingerTip Callibration TRACKING  /////////////////////////////////////
+                //////////////////////////    Finger Joints  TRACKING  /////////////////////////////////////
                 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -242,317 +275,11 @@ void HandWindow::updateMe()
                                                   };
 
                         global_Joints[f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
-                    }
-                }
-            }
-            //////////////////////////////////////////////////////////////////////////////////////////////////////
-            //////////////////////////    Hand TRACKING  /////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////////////
-
-//            if((frame.hands().count() ==1)       &&
-//                    (frame.fingers().count() >= 4))
-//            {
-//                Vector newNormal = hand.palmNormal();
-
-//                double oldNormal[3] ;
-//                global_PlaneWidget->GetNormal(oldNormal);
-//                double newNormalD [3];
-//                double theta, rotVector[3];
-
-//                double *point1 = global_PlaneWidget->GetPoint1();
-//                double *origin = global_PlaneWidget->GetOrigin();
-//                double *center = global_PlaneWidget->GetCenter();
-
-
-//                newNormalD[0] = newNormal.x;
-//                newNormalD[1] = newNormal.y;
-//                newNormalD[2] = newNormal.z;
-
-//                global_PlaneWidget->SetNormal(newNormal.x, newNormal.y, newNormal.z);
-//                global_PlaneWidget->UpdatePlacement();
-
-
-//                ///Compute the rotation vector using a transformation matrix
-//                ///Note that is fnromals are aparelle then te rotation is either 0 or 180 Degrees
-
-//                double dp = vtkMath::Dot(oldNormal, newNormalD);
-//                if (dp >= 1.0)
-//                {
-//                    return;    ///zero rotation
-//                }
-
-//                else if (dp <= -1.0)
-//                {
-//                    theta = 180.0;
-//                    rotVector[0] = point1[0] - origin[0];
-//                    rotVector[1] = point1[1] - origin[1];
-//                    rotVector[2] = point1[2] - origin[2];
-//                }
-//                else
-//                {
-//                    vtkMath::Cross(oldNormal, newNormalD,rotVector);
-//                    theta = vtkMath::DegreesFromRadians(acos(dp));
-//                }
-
-//                global_ArrowActor->RotateWXYZ(theta, rotVector[0], rotVector[1], rotVector[2]);
-//                global_SphereActor->RotateWXYZ(theta, rotVector[0], rotVector[1], rotVector[2]);
-//                global_SphereActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
-
-//            //    global_PlaneWidget->Print(std::cout);
-
-//                /// Compute the Scale Factor using the leap motion factor
-
-//                /// The following code checks to see if the sensor has regained focus.
-//                /// if so, we set the global_CameraPosition to the default value
-//                /// Effectively functioning as a reset value.
-//                /// We also have a skip value to true to not invert the slider.
-
-//                bool do_Invert = true;
-//                if (abs(controller_->frame(1).id() - global_ScaleFactorID) > 15 )
-//                {
-//                    global_CameraPosition = static_cast<vtkSliderRepresentation3D*>(global_Slider->GetRepresentation())->GetValue();
-////                    std::cout << "Return focus" << endl;
-//                    do_Invert = false;
-//                }
-
-//                global_ScaleFactorID = frame.id();       //Current Frame
-
-//                float scaleFactor = frame.hands()[0].scaleFactor(controller_->frame(2));
-
-//                double oldPosition = global_CameraPosition;
-
-//                global_CameraPosition = oldPosition / (scaleFactor) ;
-
-//                double newPosition = global_CameraPosition;
-
-//                /// We add color chromatic scale to the Slider Widget Propoert to highligh strength
-
-//                double colourRange = (newPosition /  scaling_Max) ;
-
-//                if (colourRange < 0) colourRange = 0;
-//                else
-//                if(colourRange > 1) colourRange = 1;
-
-//                if (scaleFactor > 1.0000001)            /// EXPANDING .... ColourRange Getting SMALLER - Blue Adjustment
-//                {
-//                     static_cast<vtkSliderRepresentation3D*>(global_Slider->GetRepresentation())->SetValue(newPosition );
-//                    static_cast<vtkSliderRepresentation3D*>(global_Slider->GetRepresentation())->GetTubeProperty()->SetColor(colourRange,colourRange,1);
-//                }
-//                else                                           /// SCHINKING.... ColourRange Getting BIGGER -- Red Adjustment
-//                {
-//                    static_cast<vtkSliderRepresentation3D*>(global_Slider->GetRepresentation())->SetValue(newPosition );
-//                    static_cast<vtkSliderRepresentation3D*>(global_Slider->GetRepresentation())->GetTubeProperty()->SetColor(1,1-colourRange,1-colourRange);
-//                }
-
-////                 std::cout  << "scaleFactor: " << scaleFactor
-////                              << "\t, oldPosition: "  << oldPosition
-////                              << "\t, newPosition: "  << newPosition
-////                              << "\t, colourRange: "  << colourRange
-////                              << "\t, CameraPos: "  << global_CameraPosition
-////                             <<  "\t, FrameID: "  << frame.id()
-////                              << "\t" << endl;
-
-
-//            } /// Hand tracking
-
-
-            //////////////////////////////////////////////////////////////////////////////////////////////////////
-            //////////////////////////    FINGER TRACKING  ///////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////////////
-
-//            if (this->ui->checkBoxFingers->isChecked() || this->ui->checkBoxFingerTips->isChecked())
-//            {
-//                ///Set default finger values
-//                ///
-//                for (int t =0; t < 5; t++)
-//                {
-//                    global_FingerTip[t]->VisibilityOff();
-//                }
-
-
-//                if((frame.hands().count() ==1)       &&
-//                        (frame.fingers().count() >= 1 && frame.fingers().count() < 6))
-//                {
-
-//                    const Leap::FingerList fingers = frame.fingers();
-//                    double handDropPos = 1;
-
-//                    for (Leap::FingerList::const_iterator f1 = fingers.begin(); f1 != fingers.end(); f1++)
-//                    {
-//                        Leap::Bone bone;
-//                        Leap::Bone::Type boneType;
-//                        for(int b = 0; b < 4; b++)
-//                        {
-//                            boneType = static_cast<Leap::Bone::Type>(b);
-//                            bone = (*f1).bone(boneType);
-//                            std::cout << "Finger index: " << (*f1).type() << " " << bone <<  "x1" << std::endl;
-//                        }
-//                    };
-
-//                    for(int i =0; i < fingers.count(); i++)
-//                    {
-//                        const Leap::Finger finger = fingers[i];
-////                        Leap::Vector vStartPos = mtxFrameTransform.transformPoint(finger.stabilizedTipPosition() * frameScale);
-////                        Leap::Vector vEndPos = mtxFrameTransform.transformDirection(finger.direction()) * 30;
-
-//                        Leap::Vector vStartPos = mtxFrameTransform.transformPoint(finger.stabilizedTipPosition() * frameScale);
-//                        Leap::Vector vEndPos = mtxFrameTransform.transformDirection(finger.direction()) * 30;
-
-//                        //Leap::Vector v
-
-//                        if (this->ui->checkBoxFingerTips->isChecked())
-//                        {
-//                            //global_FingerTip[i]->SetPosition(vStartPos.x, vStartPos.y -handDropPos, vStartPos.z);
-//                            global_FingerTip[i]->SetPosition(vStartPos.x, vStartPos.y, vStartPos.z);
-//                            global_FingerTip[i]->GetProperty()->SetColor(global_FingerClr[i]);
-//                            global_FingerTip[i]->VisibilityOn();
-//                        }
-
-//                        double * output;
-
-//                        /// Optional Lines (Very confusing)
-//                        if (this->ui->checkBoxFingers->isChecked())
-//                        {
-////                            double startPoint [3] = {vStartPos.x, vStartPos.y -handDropPos, vStartPos.z} ;
-////                            double endPoint [3] = {vEndPos.x, vEndPos.y -handDropPos, vEndPos.z};
-//                            double startPoint [3] = {vStartPos.x, vStartPos.y, vStartPos.z} ;
-//                            double endPoint [3] = {vEndPos.x, vEndPos.y, vEndPos.z};
-//                            double radius = 25;
-
-//                          //  std::cout  << "endPoint A: " << endPoint[0] << ","  << endPoint[1] << ","  << endPoint[2] << "\t" << endl;
-
-
-//                            //// SHORT LINE FUNCTION C++ Too Silly for Simple Array Return Function
-//                            double dx = endPoint[0] - startPoint[0];
-//                            double dy = endPoint[1] - startPoint[1];
-//                            double dz = endPoint[2] - startPoint[2];
-
-//                         //   std::cout << "A dx = " << dx << "A dy = " << dy << "A dz = " << dz << endl;
-
-//                            double length = std::sqrt(dx * dx + dy * dy + dz * dz);
-
-//                            if (length > 0)
-//                            {
-//                                dx /=length;
-//                                dy /=length;
-//                                dz /=length;
-//                            }
-
-
-//                            dx *= length - radius;
-//                            dy *= length - radius;
-//                            dz *= length - radius;
-
-//                          //  std::cout << "B dx = " << dx << "B dy = " << dy << "B dz = " << dz << endl;
-
-
-//                            double newDistance[3] = {
-//                                                     startPoint[0] + dx,
-//                                                     startPoint[1] + dy,
-//                                                     startPoint[2] + dz
-//                                                    };
-
-//                          //  std::cout  << "endPointB: " << newDistance[0] << ","  << newDistance[1] << ","  << newDistance[2] << "\t" << endl;
-
-//                            //global_Fingers[i]->SetPoint1(vStartPos.x, vStartPos.y, vStartPos.z);
-//                            global_Fingers[i]->SetPoint1(startPoint);
-//                            global_Fingers[i]->GetLineProperty()->SetColor(global_FingerClr[i]);
-//                            //global_Fingers[i]->SetPoint2(vEndPos.x, vEndPos.y , vEndPos.z);
-//                            global_Fingers[i]->SetPoint2(newDistance);
-
-//                            global_Fingers[i]->On();
-
-//                            output = newDistance;
-//                        }
-
-
-
-//                        /// NEW BONES DISPLAY Lines (SHOULD BE Very NON CONFUSING confusing)
-//                        if (this->ui->checkBoxBones->isChecked())
-//                        {
-
-////                            const Leap::Finger finger = fingers[i];
-//////                            double startPoint [3] = {vStartPos.x, vStartPos.y -handDropPos, vStartPos.z} ;
-//////                            double endPoint [3] = {vEndPos.x, vEndPos.y -handDropPos, vEndPos.z};
-
-////                            Leap::Bone bone;
-////                            Leap::Bone::Type boneType;
-
-////                            for (int b = 0; b <  4 ; b++)
-////                            {
-////                                    boneType = static_cast<Leap::Bone::Type>(b);
-////                                    bone = finger.bone(boneType);
-////                                global_Bones[i][b]->SetPoint1
-////                                        (
-////                                            bone.prevJoint().x,
-////                                            bone.prevJoint().y,
-////                                            bone.prevJoint().z
-////                                            );
-
-////                                global_Bones[i][b]->SetPoint2
-////                                        (
-////                                            bone.nextJoint().x,
-////                                            bone.nextJoint().y,
-////                                            bone.nextJoint().z
-////                                            );
-
-////                               global_Bones[i][b]->GetLineProperty()->SetColor(global_FingerClr[i]);
-////                                //global_Fingers[i]->SetPoint2(vEndPos.x, vEndPos.y , vEndPos.z);
-
-
-////                                global_Bones[i][b]->On();
-
-////                            }
-//////                            double startPoint [3] = {vStartPos.x, vStartPos.y, vStartPos.z} ;
-//////                            double endPoint [3] = {vEndPos.x, vEndPos.y, vEndPos.z};
-//////                            double radius = 25;
-
-//////                          //  std::cout  << "endPoint A: " << endPoint[0] << ","  << endPoint[1] << ","  << endPoint[2] << "\t" << endl;
-
-
-//////                            //// SHORT LINE FUNCTION C++ Too Silly for Simple Array Return Function
-//////                            /// Basically generates a line between 2 vectors which are 3D points
-//////                            double dx = endPoint[0] - startPoint[0];
-//////                            double dy = endPoint[1] - startPoint[1];
-//////                            double dz = endPoint[2] - startPoint[2];
-
-//////                         //   std::cout << "A dx = " << dx << "A dy = " << dy << "A dz = " << dz << endl;
-
-//////                            double length = std::sqrt(dx * dx + dy * dy + dz * dz);
-
-//////                            if (length > 0)
-//////                            {
-//////                                dx /=length;
-//////                                dy /=length;
-//////                                dz /=length;
-//////                            }
-
-
-//////                            dx *= length - radius;
-//////                            dy *= length - radius;
-//////                            dz *= length - radius;
-
-//////                          //  std::cout << "B dx = " << dx << "B dy = " << dy << "B dz = " << dz << endl;
-
-
-//////                            double newDistance[3] = {
-//////                                                     startPoint[0] + dx,
-//////                                                     startPoint[1] + dy,
-//////                                                     startPoint[2] + dz
-//////                                                    };
-
-////                          //  std::cout  << "endPointB: " << newDistance[0] << ","  << newDistance[1] << ","  << newDistance[2] << "\t" << endl;
-
-////                            //global_Fingers[i]->SetPoint1(vStartPos.x, vStartPos.y, vStartPos.z);
-////                            ///global_Fingers[i]->SetPoint1(startPoint);
-
-
-//                        }
-//                    }
-//                }
-//            } /// Finger Tracking
-        }
-    }
+                    }    /// for (int b = 0)
+                }   ///  for (int f = 0; )
+            }    /// if(frame.hands().count() ==1)
+        }   ///    if (!frame.hands().isEmpty()
+    }   ///  if(controller_->isConnected())
 }
 
 void HandWindow::on_buttonStop_clicked()
@@ -684,5 +411,79 @@ void HandWindow::jointPositions(fingerJoints& joints, int finger)
         break;
     }
 
+    }   /// switch()
+}
+
+void HandWindow::bonePositions(fingerBones& bones, int finger)
+{
+    /// FINGER 5, BONES 4, 3 Point Vector
+    switch (finger)
+    {
+    case 0:
+    {
+
+        fingerBones finger1 =
+        {
+            {-0.6,165.9,182.9},
+            {-0.6,165.9,182.9},
+            {-35.2,172.2,118.1},
+            {-61.6,178.5,75.7},
+        };
+        memcpy(bones,finger1,sizeof(bones));
+        break;
     }
+
+    case 1:
+    {
+
+        fingerBones finger2 =
+        {
+            {21.0,192.9,177.8},
+            {5.8,222.3,74.4},
+            {-0.3,259.3,23.3},
+            {-9.7,263.2,-10.9},
+        };
+        memcpy(bones,finger2,sizeof(bones));
+        break;
+    }
+    case 2:
+    {
+        fingerBones finger3 =
+        {
+            {38.5,190.8,173.7},
+            {37.5,214.6,73.5},
+            {42.8,260.5,19.4},
+            {36.5,272.5,-20.3},
+        };
+        memcpy(bones,finger3,sizeof(bones));
+        break;
+    }
+
+    case 3:
+    {
+        fingerBones finger4 =
+        {
+            {55.1,184.2,170.7},
+            {67.4,200.8,80.6},
+            {93.9,232.4,29.2},
+            {101.7,237.8,-10.6},
+        };
+        memcpy(bones,finger4,sizeof(bones));
+        break;
+    }
+
+    case 4:
+    {
+        fingerBones finger5 =
+        {
+            {67.9,167.6,169.0},
+            {91.4,181.7,87.9},
+            {122.8,195.9,48.7},
+            {132.8,194.9,21.6},
+        };
+        memcpy(bones,finger5,sizeof(bones));
+        break;
+    }
+
+    }   /// switch()
 }

@@ -11,6 +11,7 @@
 #include "vtkRenderer.h"
 
 #include "vtkSphereSource.h"
+#include "vtkCylinderSource.h"
 #include "vtkActor.h"
 
 #include "Leap.h"
@@ -19,8 +20,8 @@
 #define HAND_TRANSLATION (Vec3f(0.0f, -400.0f, -100.0f))
 
 typedef std::vector<std::pair<Leap::Vector, float> > pinch_list;
-typedef std::vector<double[5],double[3]> fingerJoints2;
 typedef double fingerJoints[5][3];          /// Each finger has 5 joints and 3 pt Vector
+typedef double fingerBones[4][3];        /// Each Finger has 4 Bones and  3 pt Vector
 
 using namespace Leap;
 
@@ -46,6 +47,7 @@ public:
         translation_ = translation;
     }
 
+
 private slots:
     void on_buttonApply_clicked();
 
@@ -67,6 +69,7 @@ private:
 
     Leap::Vector            joints[4];
     vtkActor                    *global_Joints[5][5];           /// 5 FINGERS / 5 Joints
+    vtkActor                    *global_Bones[5][4];        /// 5 FINGERS / 5 Bones
 
 
     Controller                  * controller_;
@@ -80,6 +83,7 @@ private:
     void drawBone(const Leap::Bone& bone);
 
 void jointPositions(fingerJoints& joints, int finger);
+void bonePositions(fingerBones &bones, int finger);
     ///fingerJoints2 jointPositions(int finger);
     double** jointPositions2(int finger);
 
