@@ -12,6 +12,7 @@
 
 #include "vtkSphereSource.h"
 #include "vtkCylinderSource.h"
+#include "vtkLineSource.h"
 #include "vtkActor.h"
 
 #include "Leap.h"
@@ -21,7 +22,8 @@
 
 typedef std::vector<std::pair<Leap::Vector, float> > pinch_list;
 typedef double fingerJoints[5][3];          /// Each finger has 5 joints and 3 pt Vector
-typedef double fingerBones[4][3];        /// Each Finger has 4 Bones and  3 pt Vector
+typedef double fingerBones[4][4];        /// Each Finger has 4 Bones and  4 pt Vector (Which includes  1 Length)
+typedef double fingerLines[4][6];          /// Each finger has 4 Lines and a 2x3  pt Vector taken from  Joints
 
 using namespace Leap;
 
@@ -68,8 +70,10 @@ private:
     vtkActor                    * global_SphereActor;
 
     Leap::Vector            joints[4];
+    Leap::Vector            bones[4];
     vtkActor                    *global_Joints[5][5];           /// 5 FINGERS / 5 Joints
-    vtkActor                    *global_Bones[5][4];        /// 5 FINGERS / 5 Bones
+    vtkActor                    *global_Bones[5][4];        /// 5 FINGERS / 4 Bones
+    vtkActor                    *global_Lines[5][4];            /// 5 Fingers / 4 Bones
 
 
     Controller                  * controller_;
