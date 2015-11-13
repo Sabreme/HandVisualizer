@@ -26,6 +26,8 @@ typedef double fingerJoints[5][3];          /// Each finger has 5 joints and 3 p
 typedef double fingerBones[4][4];        /// Each Finger has 4 Bones and  4 pt Vector (Which includes  1 Length)
 typedef double fingerLines[4][6];          /// Each finger has 4 Lines and a 2x3  pt Vector taken from  Joints
 
+enum visibleHand  {rightHand, leftHand};
+
 using namespace Leap;
 
 namespace Ui {
@@ -85,8 +87,8 @@ private:
     double global_SphereCenter[3];
 
     /////////////////////////////////////////////////////
-    void drawJoint(const Leap::Vector& joint_position);
-    void drawBone(const Leap::Bone& bone);
+    void drawJoints(visibleHand activeHand);
+    void drawBones(visibleHand activeHand);
 
 void jointPositions(fingerJoints& joints, int finger);
 void bonePositions(fingerBones &bones, int finger);
