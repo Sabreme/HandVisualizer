@@ -89,8 +89,10 @@ private:
     void drawJoints(visibleHand activeHand);
     void drawBones(visibleHand activeHand);
 
-void jointPositions(fingerJoints& joints, int finger);
-void bonePositions(fingerBones &bones, int finger);
+void jointRightStartPos(fingerJoints& joints, int finger);
+void jointLeftStartPos(fingerJoints& joints, int finger);
+void boneRightStartPos(fingerBones &bones, int finger);
+void boneLeftStartPos(fingerBones& bones, int finger);
     ///fingerJoints2 jointPositions(int finger);
     double** jointPositions2(int finger);
 

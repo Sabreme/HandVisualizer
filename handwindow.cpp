@@ -80,8 +80,13 @@ void HandWindow::on_buttonApply_clicked()
     ///// WE INITIALISE THE HAND FIRST /////
     //// THE JOINTS
     ///
-    drawJoints(rightHand);
-    drawBones(rightHand);
+    ///
+   drawJoints(rightHand);
+   drawBones(rightHand);
+
+    drawJoints(leftHand);
+    drawBones(leftHand);
+
 
 }
 
@@ -281,24 +286,31 @@ void HandWindow::drawJoints(visibleHand activeHand)
     for (int f = 0; f < 5; f++)
     {
         fingerJoints  newJoints;                    /// Create a newJoints Object for each finger
-        jointPositions(newJoints,f);                /// We get the defualt joints for the current finger
+
+           /// We get the defualt joints for the current finger from Active Hand
+        switch (activeHand)
+        {
+            case rightHand: jointRightStartPos(newJoints,f); break;
+            case leftHand: jointLeftStartPos(newJoints,f); break;
+        }
+
 
         for(int j = 0 ; j < 5; j++)                     /// We loop through each joint and create actor
         {
-         global_Joints[rightHand][f][j] = vtkActor::New();
-         global_Joints[rightHand][f][j]->SetMapper(jointMapper);
+         global_Joints[activeHand][f][j] = vtkActor::New();
+         global_Joints[activeHand][f][j]->SetMapper(jointMapper);
 
-        global_Joints[rightHand][f][j]->GetProperty()->SetColor(2, 2, 2);
-        global_Joints[rightHand][f][j]->GetProperty()->SetOpacity(0.2);
+        global_Joints[activeHand][f][j]->GetProperty()->SetColor(2, 2, 2);
+        global_Joints[activeHand][f][j]->GetProperty()->SetOpacity(0.2);
 
                                                         /// We get the position from the newJoints [B][x,y,z]
         scale_ = 0.01;
 
-        global_Joints[rightHand][f][j]->SetPosition(newJoints[j][0] * scale_,
+        global_Joints[activeHand][f][j]->SetPosition(newJoints[j][0] * scale_,
                                                 newJoints[j][1] * scale_,
                                                 newJoints[j][2] * scale_ );
 
-         global_Renderer->AddActor(global_Joints[rightHand][f][j]);
+         global_Renderer->AddActor(global_Joints[activeHand][f][j]);
         }
     }
 }
@@ -314,18 +326,18 @@ void HandWindow::drawBones(visibleHand activeHand)
 
         for(int b = 0 ; b < 4; b++)                     /// We loop through each Bone and create actor
         {
-            double* point1Pos = global_Joints[rightHand][f][b]->GetPosition();
-            double* point2Pos = global_Joints[rightHand][f][b+1]->GetPosition();
+            double* point1Pos = global_Joints[activeHand][f][b]->GetPosition();
+            double* point2Pos = global_Joints[activeHand][f][b+1]->GetPosition();
 
-            global_Bones[rightHand][f][b] =vtkLineSource::New();
+            global_Bones[activeHand][f][b] =vtkLineSource::New();
 
 
              vtkSmartPointer<vtkPolyDataMapper>lineMapper =
                     vtkSmartPointer<vtkPolyDataMapper>::New();
-            lineMapper->SetInputConnection(global_Bones[rightHand][f][b]->GetOutputPort());
+            lineMapper->SetInputConnection(global_Bones[activeHand][f][b]->GetOutputPort());
 
-            global_Bones[rightHand][f][b]->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
-            global_Bones[rightHand][f][b]->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
+            global_Bones[activeHand][f][b]->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
+            global_Bones[activeHand][f][b]->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
 
             global_Bone_Actor[f][b] = vtkActor::New();
             global_Bone_Actor[f][b]->SetMapper(lineMapper);
@@ -339,7 +351,7 @@ void HandWindow::drawBones(visibleHand activeHand)
         }
     }
 }
-void HandWindow::jointPositions(fingerJoints& joints, int finger)
+void HandWindow::jointRightStartPos(fingerJoints& joints, int finger)
 {
     /// FINGER 5, JOINTS 5, 3 Point Vector
     switch (finger)
@@ -418,7 +430,86 @@ void HandWindow::jointPositions(fingerJoints& joints, int finger)
     }   /// switch()
 }
 
-void HandWindow::bonePositions(fingerBones& bones, int finger)
+void HandWindow::jointLeftStartPos(fingerJoints& joints, int finger)
+{
+    /// FINGER 5, JOINTS 5, 3 Point Vector
+    switch (finger)
+    {
+    case 0:
+    {
+
+        fingerJoints finger1 =
+        {
+            {-174.7,140.9,169.3},
+            {-174.7,140.9,169.3},
+            {-145.5,173.9,121.4},
+            {-129.4,194.6,85.6},
+            {-121.0,207.4,59.2},
+        };
+        memcpy(joints,finger1,sizeof(joints));
+        break;
+    }
+
+    case 1:
+    {
+
+        fingerJoints finger2 =
+        {
+            {-195.4,162.1,178.2},
+            {-202.8,222.5,104.2},
+            {-207.2,265.6,68.7},
+            {-206.0,281.0,41.3},
+            {-202.7,283.8,19.4},
+        };
+        memcpy(joints,finger2,sizeof(joints));
+        break;
+    }
+    case 2:
+    {
+        fingerJoints finger3 =
+        {
+            {-211.2,159.8,176.9},
+            {-230.0,213.0,105.7},
+            {-245.1,262.7,70.4},
+            {-248.4,284.6,40.7},
+            {-246.7,292.5,17.6},
+        };
+        memcpy(joints,finger3,sizeof(joints));
+        break;
+    }
+
+    case 3:
+    {
+        fingerJoints finger4 =
+        {
+            {-225.8,153.5,174.7},
+            {-253.8,196.1,111.0},
+            {-279.8,234.0,75.3},
+            {-289.5,250.0,44.4},
+            {-290.9,254.2,20.5},
+        };
+        memcpy(joints,finger4,sizeof(joints));
+        break;
+    }
+
+    case 4:
+    {
+        fingerJoints finger5 =
+        {
+            {-236.4,139.3,169.5},
+            {-272.4,175.5,113.7},
+            {-304.7,196.7,88.7},
+            {-318.2,205.1,68.8},
+            {-325.0,208.7,47.7},
+        };
+        memcpy(joints,finger5,sizeof(joints));
+        break;
+    }
+
+    }   /// switch()
+}
+
+void HandWindow::boneRightStartPos(fingerBones& bones, int finger)
 {
     /// FINGER 5, BONES 4, 3 Point Vector
     switch (finger)
@@ -484,6 +575,80 @@ void HandWindow::bonePositions(fingerBones& bones, int finger)
             {272.4,175.5,113.7,30.7},
             {304.7,196.7,88.7,17.0},
             {318.2,205.1,68.8,15.0},
+        };
+        memcpy(bones,finger5,sizeof(bones));
+        break;
+    }
+
+    }   /// switch()
+}
+
+void HandWindow::boneLeftStartPos(fingerBones& bones, int finger)
+{
+    /// FINGER 5, BONES 4, 3 Point Vector
+    switch (finger)
+    {
+    case 0:
+    {
+
+        fingerBones finger1 =
+        {
+            {-174.7,140.9,169.3,0.0},
+            {-174.7,140.9,169.3,43.4},
+            {-145.5,173.9,121.4,29.6},
+            {-129.4,194.6,85.6,20.3},
+        };
+        memcpy(bones,finger1,sizeof(bones));
+        break;
+    }
+
+    case 1:
+    {
+
+        fingerBones finger2 =
+        {
+            {-195.4,162.1,178.2,63.9},
+            {-202.8,222.5,104.2,37.3},
+            {-207.2,265.6,68.7,21.0},
+            {-206.0,281.0,41.3,14.8},
+        };
+        memcpy(bones,finger2,sizeof(bones));
+        break;
+    }
+    case 2:
+    {
+        fingerBones finger3 =
+        {
+            {-211.2,159.8,176.9,60.6},
+            {-230.0,213.0,105.7,41.9},
+            {-245.1,262.7,70.4,24.7},
+            {-248.4,284.6,40.7,16.3},
+        };
+        memcpy(bones,finger3,sizeof(bones));
+        break;
+    }
+
+    case 3:
+    {
+        fingerBones finger4 =
+        {
+            {-225.8,153.5,174.7,54.4},
+            {-253.8,196.1,111.0,38.8},
+            {-279.8,234.0,75.3,24.1},
+            {-289.5,250.0,44.4,16.2},
+        };
+        memcpy(bones,finger4,sizeof(bones));
+        break;
+    }
+
+    case 4:
+    {
+        fingerBones finger5 =
+        {
+            {-236.4,139.3,169.5,50.4},
+            {-272.4,175.5,113.7,30.7},
+            {-304.7,196.7,88.7,17.0},
+            {-318.2,205.1,68.8,15.0},
         };
         memcpy(bones,finger5,sizeof(bones));
         break;
