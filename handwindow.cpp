@@ -202,7 +202,7 @@ void HandWindow::updateMe()
                                                midpointMETA.z * sensitivity
                                               };
 
-                    global_Joints[f][0]->SetPosition(jointPosPoint);    ///joint Position.
+                    global_Joints[rightHand][f][0]->SetPosition(jointPosPoint);    ///joint Position.
 
 
 
@@ -219,7 +219,7 @@ void HandWindow::updateMe()
                                                     bonePosition.z * sensitivity
                                                   };
 
-                        global_Joints[f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
+                        global_Joints[rightHand][f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
                     }    /// for (int b = 0)
                 }   ///  for (int f = 0; )
 
@@ -237,12 +237,12 @@ void HandWindow::updateMe()
                     for (int b = 0; b < 4 ; b++)
                     {
 
-                        double* point1Pos = global_Joints[f][b]->GetPosition();
-                        double* point2Pos = global_Joints[f][b+1]->GetPosition();
+                        double* point1Pos = global_Joints[rightHand][f][b]->GetPosition();
+                        double* point2Pos = global_Joints[rightHand][f][b+1]->GetPosition();
 
 
-                          global_Lines[f][b]->SetPoint1(point1Pos);
-                          global_Lines[f][b]->SetPoint2(point2Pos);
+                          global_Bones[rightHand][f][b]->SetPoint1(point1Pos);
+                          global_Bones[rightHand][f][b]->SetPoint2(point2Pos);
 
                     }    /// for (int b = 0)
                 }   ///  for (int f = 0; )
@@ -285,20 +285,20 @@ void HandWindow::drawJoints(visibleHand activeHand)
 
         for(int j = 0 ; j < 5; j++)                     /// We loop through each joint and create actor
         {
-         global_Joints[f][j] = vtkActor::New();
-         global_Joints[f][j]->SetMapper(jointMapper);
+         global_Joints[rightHand][f][j] = vtkActor::New();
+         global_Joints[rightHand][f][j]->SetMapper(jointMapper);
 
-        global_Joints[f][j]->GetProperty()->SetColor(2, 2, 2);
-        global_Joints[f][j]->GetProperty()->SetOpacity(0.2);
+        global_Joints[rightHand][f][j]->GetProperty()->SetColor(2, 2, 2);
+        global_Joints[rightHand][f][j]->GetProperty()->SetOpacity(0.2);
 
                                                         /// We get the position from the newJoints [B][x,y,z]
         scale_ = 0.01;
 
-        global_Joints[f][j]->SetPosition(newJoints[j][0] * scale_,
+        global_Joints[rightHand][f][j]->SetPosition(newJoints[j][0] * scale_,
                                                 newJoints[j][1] * scale_,
                                                 newJoints[j][2] * scale_ );
 
-         global_Renderer->AddActor(global_Joints[f][j]);
+         global_Renderer->AddActor(global_Joints[rightHand][f][j]);
         }
     }
 }
@@ -314,18 +314,18 @@ void HandWindow::drawBones(visibleHand activeHand)
 
         for(int b = 0 ; b < 4; b++)                     /// We loop through each Bone and create actor
         {
-            double* point1Pos = global_Joints[f][b]->GetPosition();
-            double* point2Pos = global_Joints[f][b+1]->GetPosition();
+            double* point1Pos = global_Joints[rightHand][f][b]->GetPosition();
+            double* point2Pos = global_Joints[rightHand][f][b+1]->GetPosition();
 
-            global_Lines[f][b] =vtkLineSource::New();
+            global_Bones[rightHand][f][b] =vtkLineSource::New();
 
 
              vtkSmartPointer<vtkPolyDataMapper>lineMapper =
                     vtkSmartPointer<vtkPolyDataMapper>::New();
-            lineMapper->SetInputConnection(global_Lines[f][b]->GetOutputPort());
+            lineMapper->SetInputConnection(global_Bones[rightHand][f][b]->GetOutputPort());
 
-            global_Lines[f][b]->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
-            global_Lines[f][b]->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
+            global_Bones[rightHand][f][b]->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
+            global_Bones[rightHand][f][b]->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
 
             global_Bone_Actor[f][b] = vtkActor::New();
             global_Bone_Actor[f][b]->SetMapper(lineMapper);
