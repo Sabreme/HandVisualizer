@@ -76,7 +76,7 @@ private:
     Leap::Vector            bones[4];
     vtkActor                    *global_Joints[2][5][5];        /// 2 Hands,  5 FINGERS / 5 Joints
     vtkLineSource        *global_Bones[2][5][4];            /// 2 Hands, 5 FINGERS / 4 Bones
-    vtkActor                    *global_Bone_Actor[5][4];            /// 5 Fingers / 4 Bones
+    vtkActor                    *global_Bone_Actor[2][5][4];            /// 5 Fingers / 4 Bones
 
 
     Controller                  * controller_;
