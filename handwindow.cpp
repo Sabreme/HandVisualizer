@@ -59,13 +59,29 @@ void HandWindow::on_buttonApply_clicked()
     this->ui->widget->GetInteractor()->SetRenderWindow(renWin);
     global_Interactor = this->ui->widget->GetInteractor();
 
+    ///// WE Create a Centre Point Object for the camera
+
+    vtkSmartPointer<vtkCubeSource> centerBox =
+            vtkSmartPointer<vtkCubeSource>::New();
+    centerBox->SetCenter(0,0,0);
+    centerBox->SetBounds(0, 0.5, 0, 0.5, 0, 0.5);
+
+    vtkSmartPointer<vtkPolyDataMapper> centerMapper =
+          vtkSmartPointer<vtkPolyDataMapper>::New();
+  centerMapper->SetInputConnection(centerBox->GetOutputPort());
+
+  vtkSmartPointer<vtkActor>  boxActor =
+          vtkSmartPointer<vtkActor>::New();
+   boxActor->SetMapper(centerMapper);
+
+   global_Renderer->AddActor(boxActor);
 
 
     ///// WE INITIALISE THE HAND FIRST /////
     //// THE JOINTS
     vtkSmartPointer<vtkSphereSource> jointSource =
             vtkSmartPointer<vtkSphereSource>::New();
-    jointSource->SetRadius(0.05);
+    jointSource->SetRadius(0.1);
 
       vtkSmartPointer<vtkPolyDataMapper> jointMapper =
             vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -122,25 +138,24 @@ void HandWindow::on_buttonApply_clicked()
                 double* point1Pos = global_Joints[f][b]->GetPosition();
                 double* point2Pos = global_Joints[f][b+1]->GetPosition();
 
-                vtkSmartPointer<vtkLineSource> lineSource =
-                        vtkSmartPointer<vtkLineSource>::New();
+                global_Lines[f][b] =vtkLineSource::New();
                 //lineSource->Set(0.05);
 
 
                  vtkSmartPointer<vtkPolyDataMapper>lineMapper =
                         vtkSmartPointer<vtkPolyDataMapper>::New();
-                lineMapper->SetInputConnection(lineSource->GetOutputPort());
+                lineMapper->SetInputConnection(global_Lines[f][b]->GetOutputPort());
 
-                lineSource->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
-                lineSource->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
+                global_Lines[f][b]->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
+                global_Lines[f][b]->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
 
-                global_Lines[f][b] = vtkActor::New();
-                global_Lines[f][b]->SetMapper(lineMapper);
+                global_Bone_Actor[f][b] = vtkActor::New();
+                global_Bone_Actor[f][b]->SetMapper(lineMapper);
 
-                global_Lines[f][b]->GetProperty()->SetColor(2, 2, 3);
+                global_Bone_Actor[f][b]->GetProperty()->SetColor(2, 2, 3);
 
-                global_Lines[f][b]->GetProperty()->SetOpacity(0.5);
-                 global_Lines[f][b]->GetProperty()->SetLineWidth(5);
+                global_Bone_Actor[f][b]->GetProperty()->SetOpacity(0.5);
+                 global_Bone_Actor[f][b]->GetProperty()->SetLineWidth(40);
                  ///global_Lines[f][b]->
 
 
@@ -150,8 +165,9 @@ void HandWindow::on_buttonApply_clicked()
 //                                                    newBones[b][2] * scale_ );
 
 
-             global_Renderer->AddActor(global_Lines[f][b]);
+             global_Renderer->AddActor(global_Bone_Actor[f][b]);
             }
+
         }
 
 
@@ -400,14 +416,16 @@ void HandWindow::updateMe()
 //                        double sensitivity = 0.01;
 //                        double jointPosPoint[3] = { bonePosition.x * sensitivity ,
 //                                                    bonePosition.y * sensitivity,
-//                                                    bonePosition.z * sensitivity
+//                                                    bonePosition.z * sensitivity.
 //                                                  };
 
-                        global_Lines[f][b]->SetPosition(
-                                    (point1Pos[0] + point2Pos[0] ) /2,
-                                    (point1Pos[1] + point2Pos[1] ) / 2,
-                                    (point1Pos[2] + point2Pos[2] ) / 2
-                                );    ///Bone Position.
+                          global_Lines[f][b]->SetPoint1(point1Pos);
+                          global_Lines[f][b]->SetPoint2(point2Pos);
+//                        global_Bone_Actor[f][b]->SetPosition(
+//                                    (point1Pos[0] + point2Pos[0] ) /2,
+//                                    (point1Pos[1] + point2Pos[1] ) / 2,
+//                                    (point1Pos[2] + point2Pos[2] ) / 2
+//                                );    ///Bone Position.
                     }    /// for (int b = 0)
                 }   ///  for (int f = 0; )
 
