@@ -16,6 +16,17 @@
 #include "vtkCubeSource.h"
 #include "vtkActor.h"
 
+#include <vtkCellArray.h>
+#include <vtkDataSetMapper.h>
+#include <vtkPoints.h>
+#include <vtkPyramid.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkPyramid.h>
+#include <vtkSelectEnclosedPoints.h>
+
+#include <vtkFrustumSource.h>
+#include <vtkPlanes.h>
+
 #include "Leap.h"
 
 
@@ -71,6 +82,8 @@ private:
 
     vtkSphereSource             * global_Sphere;
     vtkActor                    * global_SphereActor;
+
+    vtkPyramid              * global_Pyramid;
 
     Leap::Vector            joints[4];
     Leap::Vector            bones[4];

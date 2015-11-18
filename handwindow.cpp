@@ -77,6 +77,127 @@ void HandWindow::on_buttonApply_clicked()
    global_Renderer->AddActor(boxActor);
 
 
+//   //// We create a Bounding Pyramid
+
+//   vtkSmartPointer<vtkPoints> points=
+//           vtkSmartPointer<vtkPoints>::New();
+
+//     float p0[3] = {4.0, 5, -4.0};
+//     float p1[3] = {-4.0,5, -4.0};
+//     float p2[3] = {-4.0, 5, 4.0};
+//     float p3[3] = {4.0, 5, 4.0};
+//     float p4[3] = {0.0, 0.0, 0.0};
+
+//     points->InsertNextPoint(p0);
+//     points->InsertNextPoint(p1);
+//     points->InsertNextPoint(p2);
+//     points->InsertNextPoint(p3);
+//     points->InsertNextPoint(p4);
+
+//     vtkPyramid * pyramid =
+//           vtkPyramid::New();
+//       pyramid->GetPointIds()->SetId(0,0);
+//       pyramid->GetPointIds()->SetId(1,1);
+//       pyramid->GetPointIds()->SetId(2,2);
+//       pyramid->GetPointIds()->SetId(3,3);
+//       pyramid->GetPointIds()->SetId(4,4);
+
+//       global_Pyramid = pyramid;
+
+//     vtkSmartPointer<vtkCellArray> cells =vnbb
+//           vtkSmartPointer<vtkCellArray>::New();
+//       cells->InsertNextCell (pyramid);
+
+//       vtkSmartPointer<vtkUnstructuredGrid> ug =
+//           vtkSmartPointer<vtkUnstructuredGrid>::New();
+//       ug->SetPoints(points);
+//       ug->InsertNextCell(pyramid->GetCellType(),pyramid->GetPointIds());
+
+//       //Create an actor and mapper
+//       vtkSmartPointer<vtkDataSetMapper> pyramidMapper =
+//           vtkSmartPointer<vtkDataSetMapper>::New();
+//       pyramidMapper->SetInput(ug);
+
+
+//       vtkSmartPointer<vtkActor> pyramidActor =
+//           vtkSmartPointer<vtkActor>::New();
+//       pyramidActor->SetMapper(pyramidMapper);
+
+//       pyramidActor->GetProperty()->SetOpacity(0.2);
+//       pyramidActor->GetProperty()->SetEdgeColor(50, 50, 50);
+
+
+//       global_Renderer->AddActor(pyramidActor);
+
+//       ug->Print(std::cout);
+
+//       std::cout << endl;
+
+   ///////////// FRUSTUM SOURCE
+   ///
+   //
+
+//        { 1.0,     0.0,        -0.3,       0.5,
+//           -1.0,       0.0,	-0.3,       0.3,
+//           0.0,        1.0,    	-0.3,       0.3,
+//           0.0,    	-1.0,       -0.3,       0.3,
+//            0.0,       0.0,        -1.0,        1.0,
+//            0.0,       0.0,        1.0,        5.0};
+
+   double planesArray [24] = { 1.0,     0.0,        -0.8,       0.8,
+                                                            -1.0,       0.0,	-0.8,       0.8,
+                                                            0.0,        1.0,    	-0.5,       0.5,
+                                                            0.0,    	-1.0,       -0.5,       0.5,
+                                                             0.0,       0.0,        -1.0,	1.0,
+                                                             0.0,       0.0,        1.0,        5.0};
+
+   vtkSmartPointer<vtkPlanes> planes =
+       vtkSmartPointer<vtkPlanes>::New();
+     planes->SetFrustumPlanes(planesArray);
+
+     vtkPoints * points = planes->GetPoints();
+
+
+
+
+     points->Print(std::cout);
+     std::cout << endl;
+     double point[3] = {0,0,0};
+
+
+     for (int p = 0;p < points->GetNumberOfPoints(); p++)
+     {
+         points->GetPoint(p,point);
+
+         std::cout << "Point: " << p << " :" << point[0] << ", " << point[1] << ", " << point[2] <<endl;
+     }
+
+
+   vtkSmartPointer<vtkFrustumSource> frustumSource =
+      vtkSmartPointer<vtkFrustumSource>::New();
+    frustumSource->ShowLinesOff();
+    frustumSource->SetPlanes(planes);
+    frustumSource->Update();
+
+
+    vtkPolyData * frustum = frustumSource->GetOutput();
+
+    vtkSmartPointer<vtkPolyDataMapper> frustumMapper =
+            vtkSmartPointer<vtkPolyDataMapper>::New();
+    frustumMapper->SetInput(frustum);
+
+    vtkSmartPointer<vtkActor> frustumActor =
+            vtkSmartPointer<vtkActor>::New();
+    frustumActor->SetMapper(frustumMapper);
+
+    frustumActor->RotateX(90);
+
+    global_Renderer->AddActor(frustumActor);
+
+
+
+
+
     ///// WE INITIALISE THE HAND FIRST /////
     //// THE JOINTS
     ///
@@ -100,6 +221,9 @@ void HandWindow::updateMe()
         const Frame frame = controller_->frame();
 
         Device device = controller_->devices()[0];
+
+
+        double maxRange = device.range();
 
 
         Leap::Matrix mtxFrameTransform ;
@@ -272,10 +396,39 @@ void HandWindow::updateMe()
             if (leftHandActive)
             {
                 double boundary = device.distanceToBoundary(leftHandMoving.palmPosition());
-                std::cout << " Left Hand 2 Boundary: " << boundary << "\t";
+                std::cout << std::fixed << std::setprecision(1)
+                                     <<  " Left Hand 2 Boundary: " << boundary << "\t"  << "pos: ["
+                                    << leftHandMoving.palmPosition().x << ", "
+                                    << leftHandMoving.palmPosition().y << ", "
+                                    << leftHandMoving.palmPosition().z << ",]"
+                                    << "\t" ;
+
+                Vector leftHandPos = leftHandMoving.palmPosition();
 
 
+//                vtkSmartPointer<vtkPoints> palmPoint =
+//                        vtkSmartPointer<vtkPoints>::New();
+//                palmPoint->SetPoint(1,leftHandPos.x, leftHandPos.y, leftHandPos.z);
 
+//                vtkSmartPointer<vtkPolyData> thePoint =
+//                        vtkSmartPointer<vtkPolyData>::New();
+
+//                thePoint->SetPoints(palmPoint);
+
+
+//                vtkPolydata * pyramid = global_Pyramid->
+
+
+//                vtkSmartPointer<vtkSelectEnclosedPoints> selectEnclosedPoints =
+//                        vtkSmartPointer<vtkSelectEnclosedPoints>::New();
+
+//                selectEnclosedPoints->SetInput(thePoint);
+
+//                selectEnclosedPoints->SetSurface();
+
+                 bool outsideBounds = (abs(leftHandPos.x) > 200) ||
+                                                              (abs(leftHandPos.y) > 300) ||
+                                                              (abs(leftHandPos.z) > 240) ;
 
 
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,7 +498,7 @@ void HandWindow::updateMe()
                           global_Bones[leftHand][f][b]->SetPoint2(point2Pos);
 
                           /// if boundary is less than 20, then change colour of hand to orange
-                          if (boundary < 20)
+                          if (boundary < 30 || outsideBounds)
                               global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(255,0,0);
                           else
                               global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(2,2,2);
