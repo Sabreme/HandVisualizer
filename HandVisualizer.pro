@@ -29,3 +29,11 @@ LIBS += -L/home/pmulumba/VTK5.10.1/bin -lQVTK -lvtkVolumeRendering -lvtkHybrid -
 
 INCLUDEPATH += /usr/local/include/vtk-5.10
 }
+
+win32 {LIBS += -LC:/VTK5.10.1-bin/bin -lQVTK -lvtkVolumeRendering -lvtkHybrid -lvtkWidgets   \
+        -lvtkInfovis -lvtkGeovis -lvtkViews -lvtkCharts -lvtkFiltering -lvtkImaging \
+        -lvtkGraphics -lvtkGenericFiltering -lvtkIO -lvtkRendering -lvtkCommon  \
+        -lcfitsio -lLeap
+
+INCLUDEPATH += C:/VTK5.10.1-src/include/vtk-5.10
+}

@@ -144,18 +144,21 @@ void HandWindow::on_buttonApply_clicked()
 //            0.0,       0.0,        -1.0,        1.0,
 //            0.0,       0.0,        1.0,        5.0};
 
-   double planesArray [24] = { 1.0,     0.0,        -0.8,       0.8,
-                                                            -1.0,       0.0,	-0.8,       0.8,
-                                                            0.0,        1.0,    	-0.5,       0.5,
-                                                            0.0,    	-1.0,       -0.5,       0.5,
-                                                             0.0,       0.0,        -1.0,	1.0,
-                                                             0.0,       0.0,        1.0,        5.0};
+   double planesArray [24] = {
+        1.0     ,0.0    ,-0.8   ,0.8,
+       -1.0     ,0.0    ,-0.8   ,0.8,
+        0.0     ,1.0    ,-0.5   ,0.5,
+        0.0     ,-1.0   ,-0.5   ,0.5,
+        0.0     ,0.0    ,-1.0   ,1.0,
+        0.0     ,0.0    ,1.0    ,5.0};
 
    vtkSmartPointer<vtkPlanes> planes =
        vtkSmartPointer<vtkPlanes>::New();
      planes->SetFrustumPlanes(planesArray);
 
      vtkPoints * points = planes->GetPoints();
+
+
 
 
 
@@ -191,6 +194,7 @@ void HandWindow::on_buttonApply_clicked()
     frustumActor->SetMapper(frustumMapper);
 
     frustumActor->RotateX(90);
+    frustumActor->GetProperty()->SetOpacity(0.2);
 
     global_Renderer->AddActor(frustumActor);
 
