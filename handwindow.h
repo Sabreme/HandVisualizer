@@ -35,6 +35,7 @@
 #include <vtkMatrix4x4.h>
 #include <vtkTextActor.h>
 
+#include <HandModel.h>
 
 #include "Leap.h"
 
@@ -42,13 +43,11 @@
 #define HAND_TRANSLATION (Vec3f(0.0f, -400.0f, -100.0f))
 
 
+//typedef double fingerJoints[5][3];          /// Each finger has 5 joints and 3 pt Vector
+//typedef double fingerBones[4][4];        /// Each Finger has 4 Bones and  4 pt Vector (Which includes  1 Length)
+//typedef double fingerLines[4][6];          /// Each finger has 4 Lines and a 2x3  pt Vector taken from  Joints
 
-typedef std::vector<std::pair<Leap::Vector, float> > pinch_list;
-typedef double fingerJoints[5][3];          /// Each finger has 5 joints and 3 pt Vector
-typedef double fingerBones[4][4];        /// Each Finger has 4 Bones and  4 pt Vector (Which includes  1 Length)
-typedef double fingerLines[4][6];          /// Each finger has 4 Lines and a 2x3  pt Vector taken from  Joints
-
-enum visibleHand  {rightHand, leftHand};
+//enum visibleHand  {rightHand, leftHand};
 
 using namespace Leap;
 
@@ -96,18 +95,15 @@ private:
     vtkLineSource        *global_Bones[2][5][4];            /// 2 Hands, 5 FINGERS / 4 Bones
     vtkActor                    *global_Bone_Actor[2][5][4];            /// 5 Fingers / 4 Bones
 
+    HandModeller        *handModel;
+
 
     Controller                  * controller_;
     QTimer*                timer;        
 
     /////////////////////////////////////////////////////
     void drawJoints(visibleHand activeHand);
-    void drawBones(visibleHand activeHand);
-
-void jointRightStartPos(fingerJoints& joints, int finger);
-void jointLeftStartPos(fingerJoints& joints, int finger);
-void boneRightStartPos(fingerBones &bones, int finger);
-void boneLeftStartPos(fingerBones& bones, int finger);        
+    void drawBones(visibleHand activeHand);  
 
     Leap::Vector translation_;
     float scale_;
