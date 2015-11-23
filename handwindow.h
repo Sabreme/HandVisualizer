@@ -26,6 +26,16 @@
 
 #include <vtkFrustumSource.h>
 #include <vtkPlanes.h>
+#include <vtkPlane.h>
+#include <vtkTransformFilter.h>
+#include <vtkTransformPolyDataFilter.h>
+
+#include <vtkInteractorStyleJoystickActor.h>
+#include <vtkInteractorStyleTrackballCamera.h>
+//#include "vtkCollisionDetectionFilter.h"
+#include <vtkMatrix4x4.h>
+#include <vtkTextActor.h>
+
 
 #include "Leap.h"
 
@@ -84,6 +94,7 @@ private:
     vtkActor                    * global_SphereActor;
 
     vtkPyramid              * global_Pyramid;
+    //vtkCollisionDetectionFilter * global_collider;
 
     Leap::Vector            joints[4];
     Leap::Vector            bones[4];

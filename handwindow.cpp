@@ -19,6 +19,46 @@
 
 #include <sstream>
 
+
+//class vtkCollisionCallback : public vtkCommand
+//{
+//public:
+//    static vtkCollisionCallback *New()
+//    { return new vtkCollisionCallback; }
+
+//    void SetTextActor(vtkTextActor *txt)
+//    {
+//        this->TextActor = txt;
+//    }
+//    void SetRenderWindow(vtkRenderWindow *renWin)
+//    {
+//        this->RenWin = renWin;
+//    }
+
+//    virtual void Execute(vtkObject *caller, unsigned long, void*)
+//    {
+//        vtkCollisionDetectionFilter *collide = reinterpret_cast<vtkCollisionDetectionFilter*>(caller);
+//        if (collide->GetNumberOfContacts() > 0)
+//        {
+//            sprintf(this->TextBuff, "Number Of Contacts: %d", collide->GetNumberOfContacts());
+//        }
+//        else
+//        {
+//            sprintf(this->TextBuff, "No Contacts");
+//        }
+//        this->TextActor->SetInput(this->TextBuff);
+//        this->RenWin->Render();
+//    }
+//protected:
+//    vtkTextActor *TextActor;
+//    vtkRenderWindow *RenWin;
+//    char TextBuff[128];
+//};
+
+
+
+
+
 HandWindow::HandWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::HandWindow)
@@ -59,12 +99,17 @@ void HandWindow::on_buttonApply_clicked()
     this->ui->widget->GetInteractor()->SetRenderWindow(renWin);
     global_Interactor = this->ui->widget->GetInteractor();
 
+
+    //vtkInteractorStyleJoystickActor *istyle = vtkInteractorStyleJoystickActor::New();
+    vtkInteractorStyleTrackballCamera *istyle = vtkInteractorStyleTrackballCamera::New();
+    global_Interactor->SetRenderWindow(renWin);
+       global_Interactor->SetInteractorStyle(istyle);
     ///// WE Create a Centre Point Object for the camera
 
     vtkSmartPointer<vtkCubeSource> centerBox =
             vtkSmartPointer<vtkCubeSource>::New();
     centerBox->SetCenter(0,0,0);
-    centerBox->SetBounds(0, 0.1, 0, 0.1, 0, 0.1);
+    centerBox->SetBounds(-3, 3, 1, 5, -2,3);
 
     vtkSmartPointer<vtkPolyDataMapper> centerMapper =
           vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -72,6 +117,7 @@ void HandWindow::on_buttonApply_clicked()
 
   vtkSmartPointer<vtkActor>  boxActor =
           vtkSmartPointer<vtkActor>::New();
+  boxActor->GetProperty()->SetOpacity(0.2);
    boxActor->SetMapper(centerMapper);
 
    global_Renderer->AddActor(boxActor);
@@ -144,60 +190,155 @@ void HandWindow::on_buttonApply_clicked()
 //            0.0,       0.0,        -1.0,        1.0,
 //            0.0,       0.0,        1.0,        5.0};
 
-   double planesArray [24] = {
-        1.0     ,0.0    ,-0.8   ,0.8,
-       -1.0     ,0.0    ,-0.8   ,0.8,
-        0.0     ,1.0    ,-0.5   ,0.5,
-        0.0     ,-1.0   ,-0.5   ,0.5,
-        0.0     ,0.0    ,-1.0   ,1.0,
-        0.0     ,0.0    ,1.0    ,5.0};
+//   vtkTransform * planeTransform = vtkTransform::New();
+//   planeTransform->Identity();
 
-   vtkSmartPointer<vtkPlanes> planes =
-       vtkSmartPointer<vtkPlanes>::New();
-     planes->SetFrustumPlanes(planesArray);
+//   planeTransform->RotateX(90);
 
-     vtkPoints * points = planes->GetPoints();
+//   double planesArray [24] = { 1.0,     0.0,        -0.8,       0.8,
+//                                                            -1.0,       0.0,	-0.8,       0.8,
+//                                                            0.0,        1.0,    	-0.6,       0.6,
+//                                                            0.0,    	-1.0,       -0.6,       0.6,
+//                                                             0.0,       0.0,        -1.0,	1.0,
+//                                                             0.0,       0.0,        1.0,        5.0};
 
+//   vtkSmartPointer<vtkPlanes> planes =
+//       vtkSmartPointer<vtkPlanes>::New();
+//     planes->SetFrustumPlanes(planesArray);
 
+//     double vector[3] = {0,0,0};
 
+//     for (int i = 0; i < planes->GetNumberOfPlanes(); i++)
+//     {
+//         vtkPlane * plane = planes->GetPlane(i);
 
+//         double normal[3] = {0,0,0};
+//         plane->GetNormal(normal);
+//         double point[3] = {0,0,0};
+//         plane->GetOrigin(point);
 
-
-     points->Print(std::cout);
-     std::cout << endl;
-     double point[3] = {0,0,0};
-
-
-     for (int p = 0;p < points->GetNumberOfPoints(); p++)
-     {
-         points->GetPoint(p,point);
-
-         std::cout << "Point: " << p << " :" << point[0] << ", " << point[1] << ", " << point[2] <<endl;
-     }
-
-
-   vtkSmartPointer<vtkFrustumSource> frustumSource =
-      vtkSmartPointer<vtkFrustumSource>::New();
-    frustumSource->ShowLinesOff();
-    frustumSource->SetPlanes(planes);
-    frustumSource->Update();
+//          planeTransform->Identity();
+//          planeTransform->Translate(point);
+//          planeTransform->RotateX(90);
 
 
-    vtkPolyData * frustum = frustumSource->GetOutput();
+//          double * newNormal = planeTransform->TransformDoubleNormal(normal);
+//          double * newOrigin = planeTransform->TransformDoublePoint(point);
 
-    vtkSmartPointer<vtkPolyDataMapper> frustumMapper =
-            vtkSmartPointer<vtkPolyDataMapper>::New();
-    frustumMapper->SetInput(frustum);
+//          plane->SetNormal(newNormal[0], newNormal[1], newNormal[2]);
+//          plane->SetOrigin(newOrigin[0], newOrigin[1], newOrigin[2]);
 
-    vtkSmartPointer<vtkActor> frustumActor =
-            vtkSmartPointer<vtkActor>::New();
-    frustumActor->SetMapper(frustumMapper);
 
-    frustumActor->RotateX(90);
-    frustumActor->GetProperty()->SetOpacity(0.2);
 
-    global_Renderer->AddActor(frustumActor);
+//         //plane->
 
+
+//         std::cout << "Plane (" << i << ")" << endl;
+
+//         plane->Print(std::cout);
+
+//         ///std::cout << "Point: " << i << " :" << plane[0] << ", " << point[1] << ", " << point[2] <<endl;
+//     }
+
+
+
+
+//     vtkPoints * points = planes->GetPoints();
+
+     //planes->get
+
+
+
+    //planeTransform->Translate(1.0, 0, 0);
+
+//    vtkTransformFilter * planeFilter = vtkTransformFilter::New();
+//    planeFilter->SetTransform(planeTransform);
+
+
+
+    ///vtkTransformPolyDataFilter * planeFilter = vtkTransformPolyDataFilter::New();
+    ///
+//       vtkTransformFilter * planeFilter = vtkTransformFilter::New();
+
+
+
+
+
+
+//   vtkSmartPointer<vtkFrustumSource> frustumSource =
+//      vtkSmartPointer<vtkFrustumSource>::New();
+//    frustumSource->ShowLinesOff();
+//    frustumSource->SetPlanes(planes);
+//     frustumSource->Update();
+
+//     frustumSource->Print(std::cout);
+
+//     std::cout << endl;
+
+     //vtkPolyData * frustum = planeFilter>GetOutput();
+
+
+//     planeFilter->SetInputConnection(frustumSource->GetOutputPort());
+//     ///planeFilter->SetTransform(planeTransform);
+//     planeFilter->Update();
+
+/////vtkPolyData * frustm = planeFilter->GetOutput();
+
+
+
+
+//    vtkPolyData * frustum = frustumSource->GetOutput();
+
+
+//    vtkSmartPointer<vtkPolyDataMapper> frustumMapper =
+//            vtkSmartPointer<vtkPolyDataMapper>::New();
+//    frustumMapper->SetInputConnection(frustumSource->GetOutputPort());
+
+//    vtkSmartPointer<vtkActor> frustumActor =
+//            vtkSmartPointer<vtkActor>::New();
+//    frustumActor->SetMapper(frustumMapper);
+
+//    frustumActor->RotateX(90);
+
+//    frustumActor->GetProperty()->SetOpacity(0.2);
+
+//    global_Renderer->AddActor(frustumActor);
+
+
+//vtkSmartPointer<vtkSelectEnclosedPoints> enclosedPoints =
+//        vtkSmartPointer<vtkSelectEnclosedPoints>::New();
+
+//vtkPolyData * pryamid = frustumSource->GetOutput();
+
+////vtkPolyData *
+
+//enclosedPoints->SetInput(centerBox->getP);
+//enclosedPoints->SetSurface(planeFilter->GetOutput());
+
+//    planeFilter->Print(std::cout);
+//    std::cout << endl;
+//    points->Print(std::cout);
+//    std::cout << endl;
+//    double point[3] = {0,0,0};
+//    double normal[3] = {0,0,0};
+
+//    planes->New();
+
+//    planes = frustumSource->GetPlanes();
+
+//    points->New();
+
+//    points = planes->GetPoints();
+
+
+//    for (int p = 0;p < points->GetNumberOfPoints(); p++)
+//    {
+//        points->GetPoint(p,point);
+
+//        std::cout << "Point: " << p << " :" << point[0] << ", " << point[1] << ", " << point[2] <<endl;
+//    }
+
+//    //for (int p =0; )
 
 
 
@@ -212,6 +353,109 @@ void HandWindow::on_buttonApply_clicked()
     drawJoints(leftHand);
     drawBones(leftHand);
 
+
+//    vtkSphereSource *sphere0 = vtkSphereSource::New();
+//      sphere0->SetPhiResolution(3);
+//      sphere0->SetThetaResolution(3);
+//      sphere0->SetCenter(0, 1, 0);
+
+//      global_Sphere = sphere0;
+
+
+//    vtkMatrix4x4 * matrixHand = vtkMatrix4x4::New();
+//    vtkMatrix4x4 * matrixPyramid= vtkMatrix4x4::New();
+
+//   global_collider = vtkCollisionDetectionFilter::New();
+
+
+
+//   /////////////////////////////////
+//   /////////////////////////////////
+//   /// CenterBOX
+//   ///
+//   ///
+////   global_collider->SetInputConnection(0, centerBox->GetOutputPort());
+////      global_collider->SetMatrix(0, matrixPyramid);
+////      global_collider->SetInputConnection(1,sphere0->GetOutputPort());
+////      global_collider->SetMatrix(1, matrixHand);
+////      global_collider->SetBoxTolerance(0.0);
+////      global_collider->SetCellTolerance(0.0);
+////      global_collider->SetNumberOfCellsPerNode(2);
+////      global_collider->SetCollisionModeToAllContacts();
+////      global_collider->GenerateScalarsOn();
+
+
+
+////      vtkPolyDataMapper *mapper1 = vtkPolyDataMapper::New();
+////         mapper1->SetInputConnection(global_collider->GetOutputPort(0));
+//////          vtkActor *frustumActor = vtkActor::New();
+
+////         boxActor->SetMapper(mapper1);
+////         (boxActor->GetProperty())->BackfaceCullingOn();
+////         boxActor->SetUserMatrix(matrixPyramid);
+
+////         vtkPolyDataMapper *mapper2 = vtkPolyDataMapper::New();
+////         mapper2->SetInputConnection(global_collider->GetOutputPort(1));
+////         vtkActor *sphereActor = vtkActor::New();
+////         sphereActor->SetMapper(mapper2);
+////         (sphereActor->GetProperty())->BackfaceCullingOn();
+////         sphereActor->SetUserMatrix(matrixHand);
+
+////         global_SphereActor = sphereActor;
+
+////         vtkTextActor *txt = vtkTextActor::New();
+
+////         global_Renderer->AddActor(frustumActor);
+////        global_Renderer->AddActor(sphereActor);
+////        global_Renderer->AddActor(txt);
+
+////         vtkCollisionCallback *cbCollide = vtkCollisionCallback::New();
+////            cbCollide->SetTextActor(txt);
+////            cbCollide->SetRenderWindow(renWin);
+////            global_collider->AddObserver(vtkCommand::EndEvent, cbCollide);
+
+
+
+
+//   global_collider->SetInputConnection(0, frustumSource->GetOutputPort());
+//       global_collider->SetMatrix(0, matrixPyramid);
+//       global_collider->SetInputConnection(1,sphere0->GetOutputPort());
+//       global_collider->SetMatrix(1, matrixHand);
+//       global_collider->SetBoxTolerance(0.0);
+//       global_collider->SetCellTolerance(0.0);
+//       global_collider->SetNumberOfCellsPerNode(2);
+//       global_collider->SetCollisionModeToAllContacts();
+//       global_collider->GenerateScalarsOn();
+
+
+
+//       vtkPolyDataMapper *mapper1 = vtkPolyDataMapper::New();
+//          mapper1->SetInputConnection(global_collider->GetOutputPort(0));
+////          vtkActor *frustumActor = vtkActor::New();
+
+//          frustumActor->SetMapper(mapper1);
+//          (frustumActor->GetProperty())->BackfaceCullingOn();
+//          frustumActor->SetUserMatrix(matrixPyramid);
+
+//          vtkPolyDataMapper *mapper2 = vtkPolyDataMapper::New();
+//          mapper2->SetInputConnection(global_collider->GetOutputPort(1));
+//          vtkActor *sphereActor = vtkActor::New();
+//          sphereActor->SetMapper(mapper2);
+//          (sphereActor->GetProperty())->BackfaceCullingOn();
+//          sphereActor->SetUserMatrix(matrixHand);
+
+//          global_SphereActor = sphereActor;
+
+//          vtkTextActor *txt = vtkTextActor::New();
+
+//          global_Renderer->AddActor(frustumActor);
+//         global_Renderer->AddActor(sphereActor);
+//         global_Renderer->AddActor(txt);
+
+//          vtkCollisionCallback *cbCollide = vtkCollisionCallback::New();
+//             cbCollide->SetTextActor(txt);
+//             cbCollide->SetRenderWindow(renWin);
+//             global_collider->AddObserver(vtkCommand::EndEvent, cbCollide);
 
 }
 
@@ -330,11 +574,14 @@ void HandWindow::updateMe()
 
 
             if (rightHandActive)
-            {                
+            {
                     std::cout << " Right Hand 2 Boundary: " << device.distanceToBoundary(rightHandMoving.palmPosition()) << "\t" ;
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
                 //////////////////////////    Right Finger Joints  TRACKING  /////////////////////////////////////
                 //////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 
                 for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
@@ -400,6 +647,13 @@ void HandWindow::updateMe()
             if (leftHandActive)
             {
                 double boundary = device.distanceToBoundary(leftHandMoving.palmPosition());
+
+                InteractionBox leapBox = frame.interactionBox();
+
+                Vector normalPos = leapBox.normalizePoint(leftHandMoving.palmPosition(),true);
+
+                std::cout << "Width: "  << normalPos.x << "\theight: " << normalPos.y << "\tdepth: " << normalPos.z  << "\t";
+
                 std::cout << std::fixed << std::setprecision(1)
                                      <<  " Left Hand 2 Boundary: " << boundary << "\t"  << "pos: ["
                                     << leftHandMoving.palmPosition().x << ", "
@@ -407,7 +661,28 @@ void HandWindow::updateMe()
                                     << leftHandMoving.palmPosition().z << ",]"
                                     << "\t" ;
 
+
                 Vector leftHandPos = leftHandMoving.palmPosition();
+
+                double sensitivity2 = 0.01;
+
+                double point[3] = { leftHandPos.x * sensitivity2 ,
+                                                         leftHandPos.y * sensitivity2,
+                                                         leftHandPos.z * sensitivity2 };
+
+
+
+                ///double n[3];
+//                global_SphereActor->SetPosition(point);
+//                ///vtkMath::PointIsWithinBounds(point,global_Pyramid->GEt(),n);
+//                global_collider->Update();
+//                global_collider->InvokeEvent(vtkCommand::EndEvent);
+
+
+
+
+
+                //global_SphereActor->
 
 
 //                vtkSmartPointer<vtkPoints> palmPoint =
@@ -430,9 +705,9 @@ void HandWindow::updateMe()
 
 //                selectEnclosedPoints->SetSurface();
 
-                 bool outsideBounds = (abs(leftHandPos.x) > 200) ||
-                                                              (abs(leftHandPos.y) > 300) ||
-                                                              (abs(leftHandPos.z) > 240) ;
+                 bool outsideBounds = ( (normalPos.x  == 0) || (normalPos.x == 1)) ||
+                                                              ( (normalPos.y  == 0)  || (normalPos.y == 1)) ||
+                                                              ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
 
 
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
