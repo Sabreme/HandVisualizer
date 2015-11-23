@@ -102,7 +102,7 @@ private:
     QTimer*                timer;        
 
     /////////////////////////////////////////////////////
-    void drawJoints(visibleHand activeHand);
+    //void drawJoints(visibleHand activeHand);
     void drawBones(visibleHand activeHand);  
 
     Leap::Vector translation_;

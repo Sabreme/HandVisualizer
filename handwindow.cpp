@@ -93,11 +93,12 @@ void HandWindow::on_buttonApply_clicked()
     ///
 
    handModel = new HandModeller();
-   drawJoints(rightHand);
-   drawBones(rightHand);
 
-    drawJoints(leftHand);
-    drawBones(leftHand);
+   handModel->drawJoints(rightHand,global_Renderer);
+   handModel->drawBones(rightHand, global_Renderer);
+
+    handModel->drawJoints(leftHand, global_Renderer);
+    handModel->drawBones(leftHand, global_Renderer);
 
 }
 
@@ -158,152 +159,172 @@ void HandWindow::updateMe()
                                                               ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
 
 
-                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
-                {
-                    Leap::Finger finger = rightHandMoving.fingers()[f];
-                    Leap::Bone mcp = finger.bone(Leap::Bone::TYPE_METACARPAL);
+                  handModel->translateHand(rightHand,rightHandMoving,outsideBounds);
+            }
 
-                    Leap::Vector midpointMETA  = mcp.prevJoint() + mcp.prevJoint() / 2.0;
+            if (leftHandActive)
+            {
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
+                //////////////////////////    Right Finger Joints  TRACKING  /////////////////////////////////////
+                //////////////////////////////////////////////////////////////////////////////////
 
-                    /// We Get the location of the joint inside the hand
-                    double sensitivity = 0.01;
-                    double jointPosPoint[3] = {midpointMETA.x * sensitivity ,
-                                               midpointMETA.y * sensitivity,
-                                               midpointMETA.z * sensitivity
-                                              };
-
-                    global_Joints[rightHand][f][0]->SetPosition(jointPosPoint);    ///joint Position.
+                Vector normalPos = leapBox.normalizePoint(leftHandMoving.palmPosition(),true);
 
 
+                 bool outsideBounds = ( (normalPos.x  == 0) || (normalPos.x == 1)) ||
+                                                              ( (normalPos.y  == 0)  || (normalPos.y == 1)) ||
+                                                              ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
 
-                    /// We interate through the bones and get the joints between each of them on each finger
-                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
-                    for (int b = 0; b < 4 ; b++)
-                    {
-                        Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(b));
-                        Leap::Vector bonePosition  = bone.nextJoint() + bone.nextJoint() / 2.0;
 
-                        double sensitivity = 0.01;
-                        double jointPosPoint[3] = { bonePosition.x * sensitivity ,
-                                                    bonePosition.y * sensitivity,
-                                                    bonePosition.z * sensitivity
-                                                  };
+                  handModel->translateHand(leftHand,leftHandMoving,outsideBounds);
+            }
 
-                        global_Joints[rightHand][f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
-                    }    /// for (int b = 0)
-                }   ///  for (int f = 0; )
+//                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
+//                {
+//                    Leap::Finger finger = rightHandMoving.fingers()[f];
+//                    Leap::Bone mcp = finger.bone(Leap::Bone::TYPE_METACARPAL);
+
+//                    Leap::Vector midpointMETA  = mcp.prevJoint() + mcp.prevJoint() / 2.0;
+
+//                    /// We Get the location of the joint inside the hand
+//                    double sensitivity = 0.01;
+//                    double jointPosPoint[3] = {midpointMETA.x * sensitivity ,
+//                                               midpointMETA.y * sensitivity,
+//                                               midpointMETA.z * sensitivity
+//                                              };
+
+//                    global_Joints[rightHand][f][0]->SetPosition(jointPosPoint);    ///joint Position.
+
+
+
+//                    /// We interate through the bones and get the joints between each of them on each finger
+//                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
+//                    for (int b = 0; b < 4 ; b++)
+//                    {
+//                        Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(b));
+//                        Leap::Vector bonePosition  = bone.nextJoint() + bone.nextJoint() / 2.0;
+
+//                        double sensitivity = 0.01;
+//                        double jointPosPoint[3] = { bonePosition.x * sensitivity ,
+//                                                    bonePosition.y * sensitivity,
+//                                                    bonePosition.z * sensitivity
+//                                                  };
+
+//                        global_Joints[rightHand][f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
+//                    }    /// for (int b = 0)
+//                }   ///  for (int f = 0; )
 
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
                 //////////////////////////    Right Finger BONES  TRACKING  /////////////////////////////////////
                 //////////////////////////////////////////////////////////////////////////////////
 
 
-                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
-                {
-                    Leap::Finger finger = hand.fingers()[f];
+//                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
+//                {
+//                    Leap::Finger finger = hand.fingers()[f];
 
-                    /// We interate through the bones and get the joints between each of them on each finger
-                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
-                    for (int b = 0; b < 4 ; b++)
-                    {
+//                    /// We interate through the bones and get the joints between each of them on each finger
+//                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
+//                    for (int b = 0; b < 4 ; b++)
+//                    {
 
-                        double* point1Pos = global_Joints[rightHand][f][b]->GetPosition();
-                        double* point2Pos = global_Joints[rightHand][f][b+1]->GetPosition();
-
-
-                          global_Bones[rightHand][f][b]->SetPoint1(point1Pos);
-                          global_Bones[rightHand][f][b]->SetPoint2(point2Pos);
-
-                          /// IF OUT OF BOUNDS - Change ACTOR COLOUR
-                          if (outsideBounds)
-                              global_Bone_Actor[rightHand][f][b]->GetProperty()->SetColor(fingerColourWarning);
-                          else
-                              global_Bone_Actor[rightHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
-
-                    }    /// for (int b = 0)
-                }   ///  for (int f = 0; )
-            }    /// if(hand.isRight())
-
-            if (leftHandActive)
-            {
-
-                Vector normalPos = leapBox.normalizePoint(leftHandMoving.palmPosition(),true);
-
-                 bool outsideBounds = ( (normalPos.x  == 0) || (normalPos.x == 1)) ||
-                                                              ( (normalPos.y  == 0)  || (normalPos.y == 1)) ||
-                                                              ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
-
-                ////////////////////////////////////////////////////////////////////////////////////////////////////
-                //////////////////////////    Left  Finger Joints  TRACKING  /////////////////////////////////////
-                //////////////////////////////////////////////////////////////////////////////////
+//                        double* point1Pos = global_Joints[rightHand][f][b]->GetPosition();
+//                        double* point2Pos = global_Joints[rightHand][f][b+1]->GetPosition();
 
 
-                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
-                {
-                    Leap::Finger finger = leftHandMoving.fingers()[f];
-                    Leap::Bone mcp = finger.bone(Leap::Bone::TYPE_METACARPAL);
+//                          global_Bones[rightHand][f][b]->SetPoint1(point1Pos);
+//                          global_Bones[rightHand][f][b]->SetPoint2(point2Pos);
 
-                    Leap::Vector midpointMETA  = mcp.prevJoint() + mcp.prevJoint() / 2.0;
+//                          /// IF OUT OF BOUNDS - Change ACTOR COLOUR
+//                          if (outsideBounds)
+//                              global_Bone_Actor[rightHand][f][b]->GetProperty()->SetColor(fingerColourWarning);
+//                          else
+//                              global_Bone_Actor[rightHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
 
-                    /// We Get the location of the joint inside the hand
-                    double sensitivity = 0.01;
-                    double jointPosPoint[3] = {midpointMETA.x * sensitivity ,
-                                               midpointMETA.y * sensitivity,
-                                               midpointMETA.z * sensitivity
-                                              };
+//                    }    /// for (int b = 0)
+//                }   ///  for (int f = 0; )
+//            }    /// if(hand.isRight())
 
-                    global_Joints[leftHand][f][0]->SetPosition(jointPosPoint);    ///joint Position.
+//            if (leftHandActive)
+//            {
 
+//                Vector normalPos = leapBox.normalizePoint(leftHandMoving.palmPosition(),true);
 
-                    /// We interate through the bones and get the joints between each of them on each finger
-                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
-                    for (int b = 0; b < 4 ; b++)
-                    {
-                        Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(b));
-                        Leap::Vector bonePosition  = bone.nextJoint() + bone.nextJoint() / 2.0;
+//                 bool outsideBounds = ( (normalPos.x  == 0) || (normalPos.x == 1)) ||
+//                                                              ( (normalPos.y  == 0)  || (normalPos.y == 1)) ||
+//                                                              ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
 
-                        double sensitivity = 0.01;
-                        double jointPosPoint[3] = { bonePosition.x * sensitivity ,
-                                                    bonePosition.y * sensitivity,
-                                                    bonePosition.z * sensitivity
-                                                  };
-
-                        global_Joints[leftHand][f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
+//                ////////////////////////////////////////////////////////////////////////////////////////////////////
+//                //////////////////////////    Left  Finger Joints  TRACKING  /////////////////////////////////////
+//                //////////////////////////////////////////////////////////////////////////////////
 
 
-                    }    /// for (int b = 0)
-                }   ///  for (int f = 0; )
+//                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
+//                {
+//                    Leap::Finger finger = leftHandMoving.fingers()[f];
+//                    Leap::Bone mcp = finger.bone(Leap::Bone::TYPE_METACARPAL);
 
-                ////////////////////////////////////////////////////////////////////////////////////////////////////
-                ////////////////////////// Left    Finger BONES  TRACKING  /////////////////////////////////////
-                //////////////////////////////////////////////////////////////////////////////////
+//                    Leap::Vector midpointMETA  = mcp.prevJoint() + mcp.prevJoint() / 2.0;
 
+//                    /// We Get the location of the joint inside the hand
+//                    double sensitivity = 0.01;
+//                    double jointPosPoint[3] = {midpointMETA.x * sensitivity ,
+//                                               midpointMETA.y * sensitivity,
+//                                               midpointMETA.z * sensitivity
+//                                              };
 
-                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
-                {
-                    Leap::Finger finger = hand.fingers()[f];
-
-                    /// We interate through the bones and get the joints between each of them on each finger
-                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
-                    for (int b = 0; b < 4 ; b++)
-                    {
-
-                        double* point1Pos = global_Joints[leftHand][f][b]->GetPosition();
-                        double* point2Pos = global_Joints[leftHand][f][b+1]->GetPosition();
+//                    global_Joints[leftHand][f][0]->SetPosition(jointPosPoint);    ///joint Position.
 
 
-                          global_Bones[leftHand][f][b]->SetPoint1(point1Pos);
-                          global_Bones[leftHand][f][b]->SetPoint2(point2Pos);
+//                    /// We interate through the bones and get the joints between each of them on each finger
+//                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
+//                    for (int b = 0; b < 4 ; b++)
+//                    {
+//                        Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(b));
+//                        Leap::Vector bonePosition  = bone.nextJoint() + bone.nextJoint() / 2.0;
 
-                          /// IF OUT OF BOUNDS - Change ACTOR COLOUR
-                          if (outsideBounds)
-                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(fingerColourWarning);
-                          else
-                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
+//                        double sensitivity = 0.01;
+//                        double jointPosPoint[3] = { bonePosition.x * sensitivity ,
+//                                                    bonePosition.y * sensitivity,
+//                                                    bonePosition.z * sensitivity
+//                                                  };
 
-                    }    /// for (int b = 0)
-                }   ///  for (int f = 0; )
-            }    /// if(hand.isLeft())                        
+//                        global_Joints[leftHand][f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
+
+
+//                    }    /// for (int b = 0)
+//                }   ///  for (int f = 0; )
+
+//                ////////////////////////////////////////////////////////////////////////////////////////////////////
+//                ////////////////////////// Left    Finger BONES  TRACKING  /////////////////////////////////////
+//                //////////////////////////////////////////////////////////////////////////////////
+
+
+//                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
+//                {
+//                    Leap::Finger finger = hand.fingers()[f];
+
+//                    /// We interate through the bones and get the joints between each of them on each finger
+//                    /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
+//                    for (int b = 0; b < 4 ; b++)
+//                    {
+
+//                        double* point1Pos = global_Joints[leftHand][f][b]->GetPosition();
+//                        double* point2Pos = global_Joints[leftHand][f][b+1]->GetPosition();
+
+
+//                          global_Bones[leftHand][f][b]->SetPoint1(point1Pos);
+//                          global_Bones[leftHand][f][b]->SetPoint2(point2Pos);
+
+//                          /// IF OUT OF BOUNDS - Change ACTOR COLOUR
+//                          if (outsideBounds)
+//                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(fingerColourWarning);
+//                          else
+//                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
+
+//                    }    /// for (int b = 0)
+//                }   ///  for (int f = 0; )
+//            }    /// if(hand.isLeft())
         }   ///    if (!frame.hands().isEmpty()
     }   ///  if(controller_->isConnected())
 }
@@ -316,87 +337,87 @@ void HandWindow::on_buttonStop_clicked()
 }
 
 
-void HandWindow::drawJoints(visibleHand activeHand)
-{
+//void HandWindow::drawJoints(visibleHand activeHand)
+//{
 
-    vtkSmartPointer<vtkSphereSource> jointSource =
-            vtkSmartPointer<vtkSphereSource>::New();
-    jointSource->SetRadius(jointSize);
+//    vtkSmartPointer<vtkSphereSource> jointSource =
+//            vtkSmartPointer<vtkSphereSource>::New();
+//    jointSource->SetRadius(jointSize);
 
-      vtkSmartPointer<vtkPolyDataMapper> jointMapper =
-            vtkSmartPointer<vtkPolyDataMapper>::New();
-    jointMapper->SetInputConnection(jointSource->GetOutputPort());
+//      vtkSmartPointer<vtkPolyDataMapper> jointMapper =
+//            vtkSmartPointer<vtkPolyDataMapper>::New();
+//    jointMapper->SetInputConnection(jointSource->GetOutputPort());
 
-    /// Loop through each of the Fingers
-    /// Then in Each Finger, loop through each of the Joints
-    for (int f = 0; f < 5; f++)
-    {
-        fingerJoints  newJoints;                    /// Create a newJoints Object for each finger
+//    /// Loop through each of the Fingers
+//    /// Then in Each Finger, loop through each of the Joints
+//    for (int f = 0; f < 5; f++)
+//    {
+//        fingerJoints  newJoints;                    /// Create a newJoints Object for each finger
 
-           /// We get the defualt joints for the current finger from Active Hand
-        switch (activeHand)
-        {
-            case rightHand: handModel->jointRightStartPos(newJoints,f); break;
-            case leftHand: handModel->jointLeftStartPos(newJoints,f); break;
-        }
-
-
-        for(int j = 0 ; j < 5; j++)                     /// We loop through each joint and create actor
-        {
-         global_Joints[activeHand][f][j] = vtkActor::New();
-         global_Joints[activeHand][f][j]->SetMapper(jointMapper);
-
-        global_Joints[activeHand][f][j]->GetProperty()->SetColor(fingerColourNormal);
-        global_Joints[activeHand][f][j]->GetProperty()->SetOpacity(0.2);
-
-                                                        /// We get the position from the newJoints [B][x,y,z]
-        scale_ = 0.01;
-
-        global_Joints[activeHand][f][j]->SetPosition(newJoints[j][0] * scale_,
-                                                newJoints[j][1] * scale_,
-                                                newJoints[j][2] * scale_ );
-
-         global_Renderer->AddActor(global_Joints[activeHand][f][j]);
-        }
-    }
-}
-
-void HandWindow::drawBones(visibleHand activeHand)
-{
-    /// Loop through each of the Fingers
-    /// Then in Each Finger, loop through each of the bones
-
-    scale_ = 0.01;
-    for (int f = 0; f < 5; f++)
-    {
-
-        for(int b = 0 ; b < 4; b++)                     /// We loop through each Bone and create actor
-        {
-            double* point1Pos = global_Joints[activeHand][f][b]->GetPosition();
-            double* point2Pos = global_Joints[activeHand][f][b+1]->GetPosition();
-
-            global_Bones[activeHand][f][b] =vtkLineSource::New();
+//           /// We get the defualt joints for the current finger from Active Hand
+//        switch (activeHand)
+//        {
+//            case rightHand: handModel->jointRightStartPos(newJoints,f); break;
+//            case leftHand: handModel->jointLeftStartPos(newJoints,f); break;
+//        }
 
 
-             vtkSmartPointer<vtkPolyDataMapper>lineMapper =
-                    vtkSmartPointer<vtkPolyDataMapper>::New();
-            lineMapper->SetInputConnection(global_Bones[activeHand][f][b]->GetOutputPort());
+//        for(int j = 0 ; j < 5; j++)                     /// We loop through each joint and create actor
+//        {
+//         global_Joints[activeHand][f][j] = vtkActor::New();
+//         global_Joints[activeHand][f][j]->SetMapper(jointMapper);
 
-            global_Bones[activeHand][f][b]->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
-            global_Bones[activeHand][f][b]->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
+//        global_Joints[activeHand][f][j]->GetProperty()->SetColor(fingerColourNormal);
+//        global_Joints[activeHand][f][j]->GetProperty()->SetOpacity(0.2);
 
-            global_Bone_Actor[activeHand][f][b] = vtkActor::New();
-            global_Bone_Actor[activeHand][f][b]->SetMapper(lineMapper);
+//                                                        /// We get the position from the newJoints [B][x,y,z]
+//        scale_ = 0.01;
 
-            global_Bone_Actor[activeHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
+//        global_Joints[activeHand][f][j]->SetPosition(newJoints[j][0] * scale_,
+//                                                newJoints[j][1] * scale_,
+//                                                newJoints[j][2] * scale_ );
 
-            global_Bone_Actor[activeHand][f][b]->GetProperty()->SetOpacity(0.5);
-             global_Bone_Actor[activeHand][f][b]->GetProperty()->SetLineWidth(fingerSize);
+//         global_Renderer->AddActor(global_Joints[activeHand][f][j]);
+//        }
+//    }
+//}
 
-         global_Renderer->AddActor(global_Bone_Actor[activeHand][f][b]);
-        }
-    }
-}
+//void HandWindow::drawBones(visibleHand activeHand)
+//{
+//    /// Loop through each of the Fingers
+//    /// Then in Each Finger, loop through each of the bones
+
+//    scale_ = 0.01;
+//    for (int f = 0; f < 5; f++)
+//    {
+
+//        for(int b = 0 ; b < 4; b++)                     /// We loop through each Bone and create actor
+//        {
+//            double* point1Pos = global_Joints[activeHand][f][b]->GetPosition();
+//            double* point2Pos = global_Joints[activeHand][f][b+1]->GetPosition();
+
+//            global_Bones[activeHand][f][b] =vtkLineSource::New();
+
+
+//             vtkSmartPointer<vtkPolyDataMapper>lineMapper =
+//                    vtkSmartPointer<vtkPolyDataMapper>::New();
+//            lineMapper->SetInputConnection(global_Bones[activeHand][f][b]->GetOutputPort());
+
+//            global_Bones[activeHand][f][b]->SetPoint1(point1Pos[0], point1Pos[1], point1Pos[2]);
+//            global_Bones[activeHand][f][b]->SetPoint2(point2Pos[0], point2Pos[1], point2Pos[2]);
+
+//            global_Bone_Actor[activeHand][f][b] = vtkActor::New();
+//            global_Bone_Actor[activeHand][f][b]->SetMapper(lineMapper);
+
+//            global_Bone_Actor[activeHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
+
+//            global_Bone_Actor[activeHand][f][b]->GetProperty()->SetOpacity(0.5);
+//             global_Bone_Actor[activeHand][f][b]->GetProperty()->SetLineWidth(fingerSize);
+
+//         global_Renderer->AddActor(global_Bone_Actor[activeHand][f][b]);
+//        }
+//    }
+//}
 
 
 
