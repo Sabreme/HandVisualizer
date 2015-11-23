@@ -92,13 +92,13 @@ void HandWindow::on_buttonApply_clicked()
     ///
     ///
 
-   handModel = new HandModeller();
+   handRenderer = new HandRenderer();
 
-   handModel->drawJoints(rightHand,global_Renderer);
-   handModel->drawBones(rightHand, global_Renderer);
+   handRenderer->drawJoints(rightHand,global_Renderer);
+   handRenderer->drawBones(rightHand, global_Renderer);
 
-    handModel->drawJoints(leftHand, global_Renderer);
-    handModel->drawBones(leftHand, global_Renderer);
+    handRenderer->drawJoints(leftHand, global_Renderer);
+    handRenderer->drawBones(leftHand, global_Renderer);
 
 }
 
@@ -159,7 +159,7 @@ void HandWindow::updateMe()
                                                               ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
 
 
-                  handModel->translateHand(rightHand,rightHandMoving,outsideBounds);
+                  handRenderer->translateHand(rightHand,rightHandMoving,outsideBounds);
             }
 
             if (leftHandActive)
@@ -176,7 +176,7 @@ void HandWindow::updateMe()
                                                               ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
 
 
-                  handModel->translateHand(leftHand,leftHandMoving,outsideBounds);
+                  handRenderer->translateHand(leftHand,leftHandMoving,outsideBounds);
             }
 
 //                for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints

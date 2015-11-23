@@ -35,7 +35,7 @@
 #include <vtkMatrix4x4.h>
 #include <vtkTextActor.h>
 
-#include <HandModel.h>
+#include <handRenderer.h>
 
 #include "Leap.h"
 
@@ -95,7 +95,7 @@ private:
     vtkLineSource        *global_Bones[2][5][4];            /// 2 Hands, 5 FINGERS / 4 Bones
     vtkActor                    *global_Bone_Actor[2][5][4];            /// 5 Fingers / 4 Bones
 
-    HandModeller        *handModel;
+    HandRenderer        *handRenderer;
 
 
     Controller                  * controller_;

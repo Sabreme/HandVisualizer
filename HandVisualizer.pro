@@ -14,12 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         handwindow.cpp \
-    handrenderer.cpp \
-    HandModel.cpp
+    HandModel.cpp \
+    handRenderer.cpp
 
 HEADERS  += handwindow.h \
-    handrenderer.h \
-    HandModel.h
+    HandModel.h \
+    handRenderer.h
 
 FORMS    += handwindow.ui
 
