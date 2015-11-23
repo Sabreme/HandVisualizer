@@ -32,7 +32,6 @@
 
 #include <vtkInteractorStyleJoystickActor.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-//#include "vtkCollisionDetectionFilter.h"
 #include <vtkMatrix4x4.h>
 #include <vtkTextActor.h>
 
@@ -41,6 +40,8 @@
 
 
 #define HAND_TRANSLATION (Vec3f(0.0f, -400.0f, -100.0f))
+
+
 
 typedef std::vector<std::pair<Leap::Vector, float> > pinch_list;
 typedef double fingerJoints[5][3];          /// Each finger has 5 joints and 3 pt Vector
@@ -81,8 +82,6 @@ private slots:
 
     void on_buttonStop_clicked();
 
-    void drawHands();
-
 private:
     Ui::HandWindow *ui;
 
@@ -90,11 +89,6 @@ private:
     vtkRenderWindow             * global_Window;
     vtkRenderWindowInteractor   * global_Interactor;
 
-    vtkSphereSource             * global_Sphere;
-    vtkActor                    * global_SphereActor;
-
-    vtkPyramid              * global_Pyramid;
-    //vtkCollisionDetectionFilter * global_collider;
 
     Leap::Vector            joints[4];
     Leap::Vector            bones[4];
@@ -104,10 +98,7 @@ private:
 
 
     Controller                  * controller_;
-    QTimer*                timer;
-
-    double global_SphereRadius;
-    double global_SphereCenter[3];
+    QTimer*                timer;        
 
     /////////////////////////////////////////////////////
     void drawJoints(visibleHand activeHand);
@@ -116,12 +107,16 @@ private:
 void jointRightStartPos(fingerJoints& joints, int finger);
 void jointLeftStartPos(fingerJoints& joints, int finger);
 void boneRightStartPos(fingerBones &bones, int finger);
-void boneLeftStartPos(fingerBones& bones, int finger);
-    ///fingerJoints2 jointPositions(int finger);
-    double** jointPositions2(int finger);
+void boneLeftStartPos(fingerBones& bones, int finger);        
 
     Leap::Vector translation_;
     float scale_;
+
+    double fingerColourNormal [3] =  {2, 2, 2};
+    double fingerColourWarning [3] =  {255, 0, 0};
+    double boxBounds[6] = {-3, 3, 1, 5, -2,3};
+    double jointSize = 0.15;
+    double fingerSize = 20;
 };
 
 #endif // HANDWINDOW_H

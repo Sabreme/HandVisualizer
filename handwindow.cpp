@@ -20,45 +20,6 @@
 #include <sstream>
 
 
-//class vtkCollisionCallback : public vtkCommand
-//{
-//public:
-//    static vtkCollisionCallback *New()
-//    { return new vtkCollisionCallback; }
-
-//    void SetTextActor(vtkTextActor *txt)
-//    {
-//        this->TextActor = txt;
-//    }
-//    void SetRenderWindow(vtkRenderWindow *renWin)
-//    {
-//        this->RenWin = renWin;
-//    }
-
-//    virtual void Execute(vtkObject *caller, unsigned long, void*)
-//    {
-//        vtkCollisionDetectionFilter *collide = reinterpret_cast<vtkCollisionDetectionFilter*>(caller);
-//        if (collide->GetNumberOfContacts() > 0)
-//        {
-//            sprintf(this->TextBuff, "Number Of Contacts: %d", collide->GetNumberOfContacts());
-//        }
-//        else
-//        {
-//            sprintf(this->TextBuff, "No Contacts");
-//        }
-//        this->TextActor->SetInput(this->TextBuff);
-//        this->RenWin->Render();
-//    }
-//protected:
-//    vtkTextActor *TextActor;
-//    vtkRenderWindow *RenWin;
-//    char TextBuff[128];
-//};
-
-
-
-
-
 HandWindow::HandWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::HandWindow)
@@ -84,7 +45,7 @@ void HandWindow::on_buttonApply_clicked()
 {
      timer->start();
 
-     // Create the RenderWindow
+     /// Create the RenderWindow
     vtkRenderer * ren1 = vtkRenderer::New();
     global_Renderer = ren1;
 
@@ -100,16 +61,18 @@ void HandWindow::on_buttonApply_clicked()
     global_Interactor = this->ui->widget->GetInteractor();
 
 
-    //vtkInteractorStyleJoystickActor *istyle = vtkInteractorStyleJoystickActor::New();
     vtkInteractorStyleTrackballCamera *istyle = vtkInteractorStyleTrackballCamera::New();
     global_Interactor->SetRenderWindow(renWin);
        global_Interactor->SetInteractorStyle(istyle);
     ///// WE Create a Centre Point Object for the camera
 
+
+    //// THE VTK Interaction Box
+    ///
     vtkSmartPointer<vtkCubeSource> centerBox =
             vtkSmartPointer<vtkCubeSource>::New();
     centerBox->SetCenter(0,0,0);
-    centerBox->SetBounds(-3, 3, 1, 5, -2,3);
+    centerBox->SetBounds(boxBounds);
 
     vtkSmartPointer<vtkPolyDataMapper> centerMapper =
           vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -123,226 +86,6 @@ void HandWindow::on_buttonApply_clicked()
    global_Renderer->AddActor(boxActor);
 
 
-//   //// We create a Bounding Pyramid
-
-//   vtkSmartPointer<vtkPoints> points=
-//           vtkSmartPointer<vtkPoints>::New();
-
-//     float p0[3] = {4.0, 5, -4.0};
-//     float p1[3] = {-4.0,5, -4.0};
-//     float p2[3] = {-4.0, 5, 4.0};
-//     float p3[3] = {4.0, 5, 4.0};
-//     float p4[3] = {0.0, 0.0, 0.0};
-
-//     points->InsertNextPoint(p0);
-//     points->InsertNextPoint(p1);
-//     points->InsertNextPoint(p2);
-//     points->InsertNextPoint(p3);
-//     points->InsertNextPoint(p4);
-
-//     vtkPyramid * pyramid =
-//           vtkPyramid::New();
-//       pyramid->GetPointIds()->SetId(0,0);
-//       pyramid->GetPointIds()->SetId(1,1);
-//       pyramid->GetPointIds()->SetId(2,2);
-//       pyramid->GetPointIds()->SetId(3,3);
-//       pyramid->GetPointIds()->SetId(4,4);
-
-//       global_Pyramid = pyramid;
-
-//     vtkSmartPointer<vtkCellArray> cells =vnbb
-//           vtkSmartPointer<vtkCellArray>::New();
-//       cells->InsertNextCell (pyramid);
-
-//       vtkSmartPointer<vtkUnstructuredGrid> ug =
-//           vtkSmartPointer<vtkUnstructuredGrid>::New();
-//       ug->SetPoints(points);
-//       ug->InsertNextCell(pyramid->GetCellType(),pyramid->GetPointIds());
-
-//       //Create an actor and mapper
-//       vtkSmartPointer<vtkDataSetMapper> pyramidMapper =
-//           vtkSmartPointer<vtkDataSetMapper>::New();
-//       pyramidMapper->SetInput(ug);
-
-
-//       vtkSmartPointer<vtkActor> pyramidActor =
-//           vtkSmartPointer<vtkActor>::New();
-//       pyramidActor->SetMapper(pyramidMapper);
-
-//       pyramidActor->GetProperty()->SetOpacity(0.2);
-//       pyramidActor->GetProperty()->SetEdgeColor(50, 50, 50);
-
-
-//       global_Renderer->AddActor(pyramidActor);
-
-//       ug->Print(std::cout);
-
-//       std::cout << endl;
-
-   ///////////// FRUSTUM SOURCE
-   ///
-   //
-
-//        { 1.0,     0.0,        -0.3,       0.5,
-//           -1.0,       0.0,	-0.3,       0.3,
-//           0.0,        1.0,    	-0.3,       0.3,
-//           0.0,    	-1.0,       -0.3,       0.3,
-//            0.0,       0.0,        -1.0,        1.0,
-//            0.0,       0.0,        1.0,        5.0};
-
-//   vtkTransform * planeTransform = vtkTransform::New();
-//   planeTransform->Identity();
-
-//   planeTransform->RotateX(90);
-
-//   double planesArray [24] = { 1.0,     0.0,        -0.8,       0.8,
-//                                                            -1.0,       0.0,	-0.8,       0.8,
-//                                                            0.0,        1.0,    	-0.6,       0.6,
-//                                                            0.0,    	-1.0,       -0.6,       0.6,
-//                                                             0.0,       0.0,        -1.0,	1.0,
-//                                                             0.0,       0.0,        1.0,        5.0};
-
-//   vtkSmartPointer<vtkPlanes> planes =
-//       vtkSmartPointer<vtkPlanes>::New();
-//     planes->SetFrustumPlanes(planesArray);
-
-//     double vector[3] = {0,0,0};
-
-//     for (int i = 0; i < planes->GetNumberOfPlanes(); i++)
-//     {
-//         vtkPlane * plane = planes->GetPlane(i);
-
-//         double normal[3] = {0,0,0};
-//         plane->GetNormal(normal);
-//         double point[3] = {0,0,0};
-//         plane->GetOrigin(point);
-
-//          planeTransform->Identity();
-//          planeTransform->Translate(point);
-//          planeTransform->RotateX(90);
-
-
-//          double * newNormal = planeTransform->TransformDoubleNormal(normal);
-//          double * newOrigin = planeTransform->TransformDoublePoint(point);
-
-//          plane->SetNormal(newNormal[0], newNormal[1], newNormal[2]);
-//          plane->SetOrigin(newOrigin[0], newOrigin[1], newOrigin[2]);
-
-
-
-//         //plane->
-
-
-//         std::cout << "Plane (" << i << ")" << endl;
-
-//         plane->Print(std::cout);
-
-//         ///std::cout << "Point: " << i << " :" << plane[0] << ", " << point[1] << ", " << point[2] <<endl;
-//     }
-
-
-
-
-//     vtkPoints * points = planes->GetPoints();
-
-     //planes->get
-
-
-
-    //planeTransform->Translate(1.0, 0, 0);
-
-//    vtkTransformFilter * planeFilter = vtkTransformFilter::New();
-//    planeFilter->SetTransform(planeTransform);
-
-
-
-    ///vtkTransformPolyDataFilter * planeFilter = vtkTransformPolyDataFilter::New();
-    ///
-//       vtkTransformFilter * planeFilter = vtkTransformFilter::New();
-
-
-
-
-
-
-//   vtkSmartPointer<vtkFrustumSource> frustumSource =
-//      vtkSmartPointer<vtkFrustumSource>::New();
-//    frustumSource->ShowLinesOff();
-//    frustumSource->SetPlanes(planes);
-//     frustumSource->Update();
-
-//     frustumSource->Print(std::cout);
-
-//     std::cout << endl;
-
-     //vtkPolyData * frustum = planeFilter>GetOutput();
-
-
-//     planeFilter->SetInputConnection(frustumSource->GetOutputPort());
-//     ///planeFilter->SetTransform(planeTransform);
-//     planeFilter->Update();
-
-/////vtkPolyData * frustm = planeFilter->GetOutput();
-
-
-
-
-//    vtkPolyData * frustum = frustumSource->GetOutput();
-
-
-//    vtkSmartPointer<vtkPolyDataMapper> frustumMapper =
-//            vtkSmartPointer<vtkPolyDataMapper>::New();
-//    frustumMapper->SetInputConnection(frustumSource->GetOutputPort());
-
-//    vtkSmartPointer<vtkActor> frustumActor =
-//            vtkSmartPointer<vtkActor>::New();
-//    frustumActor->SetMapper(frustumMapper);
-
-//    frustumActor->RotateX(90);
-
-//    frustumActor->GetProperty()->SetOpacity(0.2);
-
-//    global_Renderer->AddActor(frustumActor);
-
-
-//vtkSmartPointer<vtkSelectEnclosedPoints> enclosedPoints =
-//        vtkSmartPointer<vtkSelectEnclosedPoints>::New();
-
-//vtkPolyData * pryamid = frustumSource->GetOutput();
-
-////vtkPolyData *
-
-//enclosedPoints->SetInput(centerBox->getP);
-//enclosedPoints->SetSurface(planeFilter->GetOutput());
-
-//    planeFilter->Print(std::cout);
-//    std::cout << endl;
-//    points->Print(std::cout);
-//    std::cout << endl;
-//    double point[3] = {0,0,0};
-//    double normal[3] = {0,0,0};
-
-//    planes->New();
-
-//    planes = frustumSource->GetPlanes();
-
-//    points->New();
-
-//    points = planes->GetPoints();
-
-
-//    for (int p = 0;p < points->GetNumberOfPoints(); p++)
-//    {
-//        points->GetPoint(p,point);
-
-//        std::cout << "Point: " << p << " :" << point[0] << ", " << point[1] << ", " << point[2] <<endl;
-//    }
-
-//    //for (int p =0; )
-
-
-
-
     ///// WE INITIALISE THE HAND FIRST /////
     //// THE JOINTS
     ///
@@ -352,110 +95,6 @@ void HandWindow::on_buttonApply_clicked()
 
     drawJoints(leftHand);
     drawBones(leftHand);
-
-
-//    vtkSphereSource *sphere0 = vtkSphereSource::New();
-//      sphere0->SetPhiResolution(3);
-//      sphere0->SetThetaResolution(3);
-//      sphere0->SetCenter(0, 1, 0);
-
-//      global_Sphere = sphere0;
-
-
-//    vtkMatrix4x4 * matrixHand = vtkMatrix4x4::New();
-//    vtkMatrix4x4 * matrixPyramid= vtkMatrix4x4::New();
-
-//   global_collider = vtkCollisionDetectionFilter::New();
-
-
-
-//   /////////////////////////////////
-//   /////////////////////////////////
-//   /// CenterBOX
-//   ///
-//   ///
-////   global_collider->SetInputConnection(0, centerBox->GetOutputPort());
-////      global_collider->SetMatrix(0, matrixPyramid);
-////      global_collider->SetInputConnection(1,sphere0->GetOutputPort());
-////      global_collider->SetMatrix(1, matrixHand);
-////      global_collider->SetBoxTolerance(0.0);
-////      global_collider->SetCellTolerance(0.0);
-////      global_collider->SetNumberOfCellsPerNode(2);
-////      global_collider->SetCollisionModeToAllContacts();
-////      global_collider->GenerateScalarsOn();
-
-
-
-////      vtkPolyDataMapper *mapper1 = vtkPolyDataMapper::New();
-////         mapper1->SetInputConnection(global_collider->GetOutputPort(0));
-//////          vtkActor *frustumActor = vtkActor::New();
-
-////         boxActor->SetMapper(mapper1);
-////         (boxActor->GetProperty())->BackfaceCullingOn();
-////         boxActor->SetUserMatrix(matrixPyramid);
-
-////         vtkPolyDataMapper *mapper2 = vtkPolyDataMapper::New();
-////         mapper2->SetInputConnection(global_collider->GetOutputPort(1));
-////         vtkActor *sphereActor = vtkActor::New();
-////         sphereActor->SetMapper(mapper2);
-////         (sphereActor->GetProperty())->BackfaceCullingOn();
-////         sphereActor->SetUserMatrix(matrixHand);
-
-////         global_SphereActor = sphereActor;
-
-////         vtkTextActor *txt = vtkTextActor::New();
-
-////         global_Renderer->AddActor(frustumActor);
-////        global_Renderer->AddActor(sphereActor);
-////        global_Renderer->AddActor(txt);
-
-////         vtkCollisionCallback *cbCollide = vtkCollisionCallback::New();
-////            cbCollide->SetTextActor(txt);
-////            cbCollide->SetRenderWindow(renWin);
-////            global_collider->AddObserver(vtkCommand::EndEvent, cbCollide);
-
-
-
-
-//   global_collider->SetInputConnection(0, frustumSource->GetOutputPort());
-//       global_collider->SetMatrix(0, matrixPyramid);
-//       global_collider->SetInputConnection(1,sphere0->GetOutputPort());
-//       global_collider->SetMatrix(1, matrixHand);
-//       global_collider->SetBoxTolerance(0.0);
-//       global_collider->SetCellTolerance(0.0);
-//       global_collider->SetNumberOfCellsPerNode(2);
-//       global_collider->SetCollisionModeToAllContacts();
-//       global_collider->GenerateScalarsOn();
-
-
-
-//       vtkPolyDataMapper *mapper1 = vtkPolyDataMapper::New();
-//          mapper1->SetInputConnection(global_collider->GetOutputPort(0));
-////          vtkActor *frustumActor = vtkActor::New();
-
-//          frustumActor->SetMapper(mapper1);
-//          (frustumActor->GetProperty())->BackfaceCullingOn();
-//          frustumActor->SetUserMatrix(matrixPyramid);
-
-//          vtkPolyDataMapper *mapper2 = vtkPolyDataMapper::New();
-//          mapper2->SetInputConnection(global_collider->GetOutputPort(1));
-//          vtkActor *sphereActor = vtkActor::New();
-//          sphereActor->SetMapper(mapper2);
-//          (sphereActor->GetProperty())->BackfaceCullingOn();
-//          sphereActor->SetUserMatrix(matrixHand);
-
-//          global_SphereActor = sphereActor;
-
-//          vtkTextActor *txt = vtkTextActor::New();
-
-//          global_Renderer->AddActor(frustumActor);
-//         global_Renderer->AddActor(sphereActor);
-//         global_Renderer->AddActor(txt);
-
-//          vtkCollisionCallback *cbCollide = vtkCollisionCallback::New();
-//             cbCollide->SetTextActor(txt);
-//             cbCollide->SetRenderWindow(renWin);
-//             global_collider->AddObserver(vtkCommand::EndEvent, cbCollide);
 
 }
 
@@ -468,87 +107,13 @@ void HandWindow::updateMe()
         /// Get the most recent frame and report some basic information
         const Frame frame = controller_->frame();
 
-        Device device = controller_->devices()[0];
-
-
-        double maxRange = device.range();
-
+        Device device = controller_->devices()[0];      
 
         Leap::Matrix mtxFrameTransform ;
 
         mtxFrameTransform.origin = Leap::Vector(0.0, 0.0, 0.0);
 
          Leap::Hand hand  = frame.hands()[0];                        /// Select Hand and get each finger
-
-//         /// JOINT POSITION TRACKING
-
-//        for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
-//        {
-//            Leap::Finger finger = hand.fingers()[f];
-//            Leap::Bone mcp = finger.bone(Leap::Bone::TYPE_METACARPAL);
-
-//            Leap::Vector midpointMETA  = mcp.prevJoint() + mcp.prevJoint() / 2.0;
-
-//            /// We Get the location of the joint inside the hand
-//            std::cout << std::fixed << std::setprecision(1) <<
-//                         "----FINGER JOINT " << f << "-----\n" <<
-
-//                         "{" << midpointMETA.x <<
-//                         "," << midpointMETA.y <<
-//                         "," << midpointMETA.z  <<
-//                         "}," ;
-
-
-//            /// We interate through the bones and get the joints between each of them on each finger
-//            /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
-//            for (int b = 0; b < 4 ; b++)
-//            {
-//                Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(b));
-//                joints[b] = bone.nextJoint() + bone.nextJoint() / 2.0;
-
-//                std::cout << "\n" <<
-//                             "{" << joints[b].x <<
-//                             "," << joints[b].y <<
-//                             "," << joints[b].z <<
-//                             "}," ;
-
-//            }
-//            std::cout <<  endl;
-
-//        }
-
-//        /// BONE POSITION TRACKING
-
-//       for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
-//       {
-//           Leap::Finger finger = hand.fingers()[f];
-
-//           /// We Get the location of the joint inside the hand
-//           std::cout << std::fixed << std::setprecision(1) <<
-//                        "----FINGER BONE" << f << "-----\n" ;
-
-
-//           /// We interate through the bones and get the joints between each of them on each finger
-//           /// REMEMBER: We have 4 Bones for EACH of the 5 Fingers (except Thumb)
-//           for (int b = 0; b < 4 ; b++)
-//           {
-//               Leap::Bone bone = finger.bone(static_cast<Leap::Bone::Type>(b));
-//               bones[b] = bone.prevJoint() + bone.prevJoint() / 2.0;
-//               //bone.
-
-//               std::cout  <<
-//                            "{" << bones[b].x <<
-//                            "," << bones[b].y <<
-//                            "," << bones[b].z <<
-//                             "," << bone.length() <<
-//                            "}," <<
-//                             "\n"
-//                                   ;
-
-//           }
-//           std::cout <<  endl;
-//       }
-
 
 
         if (!frame.hands().isEmpty() && !frame.hands()[0].fingers().isEmpty())
@@ -572,16 +137,22 @@ void HandWindow::updateMe()
                     rightHandActive = false;
             }
 
+            /// The Leap MOTION Interaction Box
+            InteractionBox leapBox = frame.interactionBox();
+
 
             if (rightHandActive)
-            {
-                    std::cout << " Right Hand 2 Boundary: " << device.distanceToBoundary(rightHandMoving.palmPosition()) << "\t" ;
+            {                    
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
                 //////////////////////////    Right Finger Joints  TRACKING  /////////////////////////////////////
                 //////////////////////////////////////////////////////////////////////////////////
 
+                Vector normalPos = leapBox.normalizePoint(rightHandMoving.palmPosition(),true);
 
 
+                 bool outsideBounds = ( (normalPos.x  == 0) || (normalPos.x == 1)) ||
+                                                              ( (normalPos.y  == 0)  || (normalPos.y == 1)) ||
+                                                              ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
 
 
                 for (int f = 0; f < hand.fingers().count(); f++ )               /// For each finger, we get the joints
@@ -640,75 +211,24 @@ void HandWindow::updateMe()
                           global_Bones[rightHand][f][b]->SetPoint1(point1Pos);
                           global_Bones[rightHand][f][b]->SetPoint2(point2Pos);
 
+                          /// IF OUT OF BOUNDS - Change ACTOR COLOUR
+                          if (outsideBounds)
+                              global_Bone_Actor[rightHand][f][b]->GetProperty()->SetColor(fingerColourWarning);
+                          else
+                              global_Bone_Actor[rightHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
+
                     }    /// for (int b = 0)
                 }   ///  for (int f = 0; )
             }    /// if(hand.isRight())
 
             if (leftHandActive)
             {
-                double boundary = device.distanceToBoundary(leftHandMoving.palmPosition());
-
-                InteractionBox leapBox = frame.interactionBox();
 
                 Vector normalPos = leapBox.normalizePoint(leftHandMoving.palmPosition(),true);
-
-                std::cout << "Width: "  << normalPos.x << "\theight: " << normalPos.y << "\tdepth: " << normalPos.z  << "\t";
-
-                std::cout << std::fixed << std::setprecision(1)
-                                     <<  " Left Hand 2 Boundary: " << boundary << "\t"  << "pos: ["
-                                    << leftHandMoving.palmPosition().x << ", "
-                                    << leftHandMoving.palmPosition().y << ", "
-                                    << leftHandMoving.palmPosition().z << ",]"
-                                    << "\t" ;
-
-
-                Vector leftHandPos = leftHandMoving.palmPosition();
-
-                double sensitivity2 = 0.01;
-
-                double point[3] = { leftHandPos.x * sensitivity2 ,
-                                                         leftHandPos.y * sensitivity2,
-                                                         leftHandPos.z * sensitivity2 };
-
-
-
-                ///double n[3];
-//                global_SphereActor->SetPosition(point);
-//                ///vtkMath::PointIsWithinBounds(point,global_Pyramid->GEt(),n);
-//                global_collider->Update();
-//                global_collider->InvokeEvent(vtkCommand::EndEvent);
-
-
-
-
-
-                //global_SphereActor->
-
-
-//                vtkSmartPointer<vtkPoints> palmPoint =
-//                        vtkSmartPointer<vtkPoints>::New();
-//                palmPoint->SetPoint(1,leftHandPos.x, leftHandPos.y, leftHandPos.z);
-
-//                vtkSmartPointer<vtkPolyData> thePoint =
-//                        vtkSmartPointer<vtkPolyData>::New();
-
-//                thePoint->SetPoints(palmPoint);
-
-
-//                vtkPolydata * pyramid = global_Pyramid->
-
-
-//                vtkSmartPointer<vtkSelectEnclosedPoints> selectEnclosedPoints =
-//                        vtkSmartPointer<vtkSelectEnclosedPoints>::New();
-
-//                selectEnclosedPoints->SetInput(thePoint);
-
-//                selectEnclosedPoints->SetSurface();
 
                  bool outsideBounds = ( (normalPos.x  == 0) || (normalPos.x == 1)) ||
                                                               ( (normalPos.y  == 0)  || (normalPos.y == 1)) ||
                                                               ( (normalPos.z  == 0)  || (normalPos.z == 1)) ;
-
 
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
                 //////////////////////////    Left  Finger Joints  TRACKING  /////////////////////////////////////
@@ -732,7 +252,6 @@ void HandWindow::updateMe()
                     global_Joints[leftHand][f][0]->SetPosition(jointPosPoint);    ///joint Position.
 
 
-
                     /// We interate through the bones and get the joints between each of them on each finger
                     /// REMEMBER: We have 5 Joins for the 4 Bones for EACH of the 5 Fingers
                     for (int b = 0; b < 4 ; b++)
@@ -747,9 +266,6 @@ void HandWindow::updateMe()
                                                   };
 
                         global_Joints[leftHand][f][b+1]->SetPosition(jointPosPoint);    ///joint Position.
-
-
-
 
 
                     }    /// for (int b = 0)
@@ -776,17 +292,15 @@ void HandWindow::updateMe()
                           global_Bones[leftHand][f][b]->SetPoint1(point1Pos);
                           global_Bones[leftHand][f][b]->SetPoint2(point2Pos);
 
-                          /// if boundary is less than 20, then change colour of hand to orange
-                          if (boundary < 30 || outsideBounds)
-                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(255,0,0);
+                          /// IF OUT OF BOUNDS - Change ACTOR COLOUR
+                          if (outsideBounds)
+                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(fingerColourWarning);
                           else
-                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(2,2,2);
+                              global_Bone_Actor[leftHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
 
                     }    /// for (int b = 0)
                 }   ///  for (int f = 0; )
-            }    /// if(hand.isLeft())
-            std::cout << endl;
-
+            }    /// if(hand.isLeft())                        
         }   ///    if (!frame.hands().isEmpty()
     }   ///  if(controller_->isConnected())
 }
@@ -798,19 +312,14 @@ void HandWindow::on_buttonStop_clicked()
 
 }
 
-void HandWindow::drawHands()
-{
 
-}
 
 void HandWindow::drawJoints(visibleHand activeHand)
-{
-
-    ///    static const ColorA joint_color(CM_HSV, 0.6, 0.5f, 1.0f, 0.5f);       //  The Colour
+{    
 
     vtkSmartPointer<vtkSphereSource> jointSource =
             vtkSmartPointer<vtkSphereSource>::New();
-    jointSource->SetRadius(0.15);
+    jointSource->SetRadius(jointSize);
 
       vtkSmartPointer<vtkPolyDataMapper> jointMapper =
             vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -835,7 +344,7 @@ void HandWindow::drawJoints(visibleHand activeHand)
          global_Joints[activeHand][f][j] = vtkActor::New();
          global_Joints[activeHand][f][j]->SetMapper(jointMapper);
 
-        global_Joints[activeHand][f][j]->GetProperty()->SetColor(2, 2, 2);
+        global_Joints[activeHand][f][j]->GetProperty()->SetColor(fingerColourNormal);
         global_Joints[activeHand][f][j]->GetProperty()->SetOpacity(0.2);
 
                                                         /// We get the position from the newJoints [B][x,y,z]
@@ -877,10 +386,10 @@ void HandWindow::drawBones(visibleHand activeHand)
             global_Bone_Actor[activeHand][f][b] = vtkActor::New();
             global_Bone_Actor[activeHand][f][b]->SetMapper(lineMapper);
 
-            global_Bone_Actor[activeHand][f][b]->GetProperty()->SetColor(2, 2, 3);
+            global_Bone_Actor[activeHand][f][b]->GetProperty()->SetColor(fingerColourNormal);
 
             global_Bone_Actor[activeHand][f][b]->GetProperty()->SetOpacity(0.5);
-             global_Bone_Actor[activeHand][f][b]->GetProperty()->SetLineWidth(40);
+             global_Bone_Actor[activeHand][f][b]->GetProperty()->SetLineWidth(fingerSize);
 
          global_Renderer->AddActor(global_Bone_Actor[activeHand][f][b]);
         }
