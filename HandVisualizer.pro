@@ -39,3 +39,7 @@ win32 {LIBS += -LC:/VTK5.10.1-bin/bin -lQVTK -lvtkVolumeRendering -lvtkHybrid -l
 
 INCLUDEPATH += C:/VTK5.10.1-src/include/vtk-5.10
 }
+
+QMAKE_CXXFLAGS_DEBUG += -std=c++11
+
+QMAKE_CXXFLAGS_RELEASE += -std=c++11 -fno-stack-protector

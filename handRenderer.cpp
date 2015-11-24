@@ -66,7 +66,6 @@ void HandRenderer::drawBones(visibleHand activeHand, vtkRenderer *renderer)
     /// Loop through each of the Fingers
     /// Then in Each Finger, loop through each of the bones
 
-    scale_ = 0.01;
     for (int f = 0; f < 5; f++)
     {
 
